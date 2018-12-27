@@ -1,3 +1,9 @@
+@import url('https://fonts.googleapis.com/css?family=Raleway');
+
+html, body {
+  font-family: 'Raleway', sans-serif;
+}
+
 .App {
   text-align: center;
 }
@@ -20,6 +26,22 @@
 
 .App-link {
   color: #61dafb;
+}
+
+/*
+ Header
+*/
+
+#Header {
+  height: 36px;
+  padding-top: 5px;
+  border-bottom: 1px solid rgb(130,130,130);
+  background-color: #161B24;
+}
+
+#Header-label {
+  margin: 2px 20px;
+  color: white;
 }
 
 @keyframes App-logo-spin {
