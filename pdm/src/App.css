@@ -44,6 +44,44 @@ html, body {
   color: white;
 }
 
+/*
+Menu
+*/
+
+li {
+  display: inline;
+  float: left;
+  margin-top: 8px;
+  margin-right: 16px;
+  transition: 0.3s all; 
+  transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+li:hover {
+  border-bottom: solid 1px white;
+  padding-bottom: 2px;
+}
+
+a {
+  text-decoration: none;
+  font-family: 'Raleway', sans-serif;
+}
+
+a:visited {
+  color: white;
+}
+
+#navigation-bar{
+  position: absolute;
+  top: -11px;
+  left: -18px;
+  color: white;
+}
+
+#signout-label:hover {
+  cursor: pointer !important;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

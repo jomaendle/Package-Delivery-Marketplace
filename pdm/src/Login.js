@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Header from './components/Header';
+import Navigation from './components/Navigation';
 import './App.css';
 import  { FirebaseContext } from './Firebase';
 
@@ -7,7 +7,7 @@ class Login extends Component {
   render() {
     return (
         <div>
-          <Header />
+          <Navigation />
           <FirebaseContext.Consumer>
             {firebase => {
               return (

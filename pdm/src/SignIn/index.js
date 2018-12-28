@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { compose } from 'recompose';
-
+import Header from "../components/Header";
+import Navigation from "../components/Navigation";
 import { SignUpLink } from '../SignUp';
 import { withFirebase } from '../Firebase';
 
 const SignInPage = () => (
-  <div>
-    <h1>SignIn</h1>
+  <div className="App">
+    <Header />
+    <Navigation />
     <SignInForm />
     <SignUpLink />
   </div>
@@ -33,7 +35,7 @@ class SignInFormBase extends Component {
       .doSignInWithEmailAndPassword(email, password)
       .then(() => {
         this.setState({ ...INITIAL_STATE });
-        this.props.history.push("/home");
+        this.props.history.push("/");
       })
       .catch(error => {
         this.setState({ error });
@@ -52,27 +54,30 @@ class SignInFormBase extends Component {
     const isInvalid = password === '' || email === '';
 
     return (
-      <form onSubmit={this.onSubmit}>
-        <input
-          name="email"
-          value={email}
-          onChange={this.onChange}
-          type="text"
-          placeholder="Email Address"
-        />
-        <input
-          name="password"
-          value={password}
-          onChange={this.onChange}
-          type="password"
-          placeholder="Password"
-        />
-        <button disabled={isInvalid} type="submit">
-          Sign In
-        </button>
+        <div>
+            <h1>Sign In</h1>
+            <form onSubmit={this.onSubmit}>
+            <input
+                name="email"
+                value={email}
+                onChange={this.onChange}
+                type="text"
+                placeholder="Email Address"
+            />
+            <input
+                name="password"
+                value={password}
+                onChange={this.onChange}
+                type="password"
+                placeholder="Password"
+            />
+            <button disabled={isInvalid} type="submit">
+                Sign In
+            </button>
 
-        {error && <p>{error.message}</p>}
-      </form>
+            {error && <p>{error.message}</p>}
+            </form>
+        </div>
     );
   }
 }

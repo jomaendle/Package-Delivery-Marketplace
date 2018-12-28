@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import Login from "./SignIn/index";
-import Home from "./Home";
-import SignUp from "./SignUp/index"
+import SignUp from "./SignUp/index";
+import Profile from "./Profile";
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import * as serviceWorker from './serviceWorker';
 import Firebase, { FirebaseContext } from './Firebase';
@@ -17,8 +17,8 @@ ReactDOM.render(
             <Switch>
                 <Route exact path="/" component={App}></Route>
                 <Route exact path="/login" component={Login}></Route>
-                <Route exact path="/home" component={Home}></Route>
                 <Route exact path="/signup" component={SignUp}></Route>
+                <Route exact path="/profile" component={Profile}></Route>
             </Switch>
         </BrowserRouter>
     </FirebaseContext.Provider>, document.getElementById('root')
