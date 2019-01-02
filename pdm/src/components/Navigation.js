@@ -2,12 +2,17 @@ import React from 'react';
 import '../App.css';
 import SignOutButton from "../SignOut";
 import { Link } from "react-router-dom";
+import { AuthUserContext } from "../Session";
+import { auth } from 'firebase';
 
 const NavigationAuth = () => (
   <div>
     <ul  id="navigation-bar">
       <li>
         <Link to={"/"}> Home </Link>
+      </li>
+      <li>
+        <Link to={"/profile"}> Profile </Link>
       </li>
       <li>
         <SignOutButton />
@@ -29,9 +34,12 @@ const NavigationNonAuth = () => (
   </div>
 );
 
-const Navigation = ({ authUser }) => (
+const Navigation = () => (
   <div>
-    {authUser ? <NavigationAuth /> : <NavigationNonAuth />}
+    <AuthUserContext.Consumer>
+      {authUser =>
+        authUser ? <NavigationAuth /> : <NavigationNonAuth />}
+    </AuthUserContext.Consumer>
   </div>
 );
 
