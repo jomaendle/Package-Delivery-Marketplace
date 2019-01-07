@@ -49,17 +49,14 @@ Menu
 */
 
 li {
-  display: inline;
-  float: left;
-  margin-top: 8px;
+  margin-bottom: 20px;
   margin-right: 16px;
   transition: 0.3s all; 
-  transition-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+  transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 li:hover {
-  border-bottom: solid 1px white;
-  padding-bottom: 2px;
+  font-weight: 600;
 }
 
 a {
@@ -67,19 +64,62 @@ a {
   font-family: 'Raleway', sans-serif;
 }
 
-a:visited {
-  color: white;
+a:visited{
+  color: black;
 }
 
+
 #navigation-bar{
-  position: absolute;
-  top: -11px;
-  left: -18px;
-  color: white;
+  list-style: none;
+  text-align: left;
+  border-right: solid 1.5px rgb(190,190,190);
+  height: 75%;
+  top: 70px;
+  position: fixed;
+  width: 200px;
+  color: black;
 }
 
 #signout-label:hover {
   cursor: pointer !important;
+}
+
+/*
+Profile 
+*/
+
+.profile-information {
+  margin-bottom: 15px;
+}
+
+.main-content{
+  text-align: left;
+  margin: 0 auto;
+  position: absolute;
+  left: 280px;
+  top: 50px;
+  width: 50%;
+  padding: 1em;
+  border-radius: 3px;
+}
+
+#map {
+  margin: 0 auto;
+  width: 80%;
+  border-radius: 5px;
+  height: 60%;
+  position: relative;
+}
+
+#searchTextField{
+  margin-bottom: 15px;
+  margin-left: 10%;
+  height: 30px;
+  width: 79%;
+  border-radius: 5px;
+  border: solid 1px rgb(225,225,225);
+  padding-left: 15px;
+  box-shadow: 0 2px 4px #d0d0d09e;
 }
 
 @keyframes App-logo-spin {

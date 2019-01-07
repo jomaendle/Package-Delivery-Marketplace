@@ -3,16 +3,21 @@ import '../App.css';
 import SignOutButton from "../SignOut";
 import { Link } from "react-router-dom";
 import { AuthUserContext } from "../Session";
-import { auth } from 'firebase';
 
 const NavigationAuth = () => (
   <div>
     <ul  id="navigation-bar">
       <li>
-        <Link to={"/"}> Home </Link>
+        <Link className="navigation-links" to={"/"}> Home </Link>
       </li>
       <li>
-        <Link to={"/profile"}> Profile </Link>
+        <Link className="navigation-links" to={"/profile"}> Profile </Link>
+      </li>
+      <li>
+        <Link to={"/new-package"}> Insert new Package </Link>
+      </li>
+      <li>
+      <Link to={"/"}> Become a Driver </Link>
       </li>
       <li>
         <SignOutButton />
@@ -25,12 +30,13 @@ const NavigationNonAuth = () => (
   <div>
     <ul id="navigation-bar">
       <li>
-        <Link to={"/"}> Home </Link>
+        <Link className="navigation-links" to={"/"}> Home </Link>
       </li>
       <li>
-        <Link to={"/login"}> Sign In </Link>
+        <Link className="navigation-links" to={"/login"}> Sign In </Link>
       </li>
     </ul>
+
   </div>
 );
 
