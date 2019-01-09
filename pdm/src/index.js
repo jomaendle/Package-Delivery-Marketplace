@@ -6,6 +6,7 @@ import Login from "./SignIn/index";
 import SignUp from "./SignUp/index";
 import Profile from "./Profile";
 import Package from "./PackageInsert/Package"
+import Driver from "./Driver"
 import ProfileEdit from "./ProfileEdit";
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import * as serviceWorker from './serviceWorker';
@@ -23,6 +24,7 @@ ReactDOM.render(
                 <Route exact path="/profile" component={Profile}></Route>
                 <Route exact path="/profile-edit" component={ProfileEdit}></Route>
                 <Route exact path="/new-package" component={Package}></Route>
+                <Route exact path="/become-driver" component={Driver}></Route>
             </Switch>
         </BrowserRouter>
     </FirebaseContext.Provider>, document.getElementById('root')
