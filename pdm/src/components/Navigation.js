@@ -17,7 +17,7 @@ const NavigationAuth = () => (
         <Link to={"/new-package"}> Insert new Package </Link>
       </li>
       <li>
-      <Link to={"/become-driver"}> Become a Driver </Link>
+      <Link to={"/driver"}> Become a Driver </Link>
       </li>
       <li>
         <SignOutButton />

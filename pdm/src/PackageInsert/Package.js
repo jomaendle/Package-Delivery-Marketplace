@@ -7,6 +7,16 @@ import { withAuthentication } from "../Session";
 import { withScriptjs, withGoogleMap, GoogleMap, Marker } from "react-google-maps"
 require('dotenv').config();
 
+const GoogleMapComponent = withScriptjs(withGoogleMap((props) =>
+<GoogleMap
+    defaultZoom={11}
+    defaultCenter={props.currentLatLng}
+    onClick={props.handleMapClick}
+>
+    {props.isMarkerShown && <Marker position={props.currentLatLng} />}
+</GoogleMap>
+))
+
 export class Package extends Component {
 
     constructor() {
@@ -22,7 +32,10 @@ export class Package extends Component {
                 lat: null
             }, 
             googleAPIKey: process.env.REACT_APP_GOOLE_API_KEY,
-            
+            currentLatLng: {
+                lat: 0,
+                lng: 0
+            }
         }
         this.handleMapClick = this.handleMapClick.bind(this);
         this.clearValues = this.clearValues.bind(this);
@@ -33,6 +46,18 @@ export class Package extends Component {
         this.sizeRef = React.createRef();
         this.weightRef = React.createRef();
         this.commentRef = React.createRef();
+    }
+
+    componentWillMount() {
+        this.getGeoLocation();
+    }
+
+    componentDidMount() {
+        axios.get(`https://jsonplaceholder.typicode.com/users`)
+          .then(res => {
+            const persons = res.data;
+            this.setState({ persons });
+          })
     }
 
     handleMapClick(e) {
@@ -60,6 +85,24 @@ export class Package extends Component {
         }
     }
 
+    getGeoLocation = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    this.setState(prevState => ({
+                        currentLatLng: {
+                            ...prevState.currentLatLng,
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        }
+                    }))
+                }
+            )
+        } else {
+           console.log("Failed fetching current GPS coordinates.");
+        }
+    }
+
     clearValues() {
         this.setState({
             startLocation: {
@@ -71,14 +114,6 @@ export class Package extends Component {
                 lat: null
             }
         })
-    }
-
-    componentDidMount() {
-        axios.get(`https://jsonplaceholder.typicode.com/users`)
-          .then(res => {
-            const persons = res.data;
-            this.setState({ persons });
-          })
     }
 
     handleSubmit = (e) => {
@@ -98,16 +133,6 @@ export class Package extends Component {
 
 
     render() {
-        const GoogleMapComponent = withScriptjs(withGoogleMap((props) =>
-        <GoogleMap
-            defaultZoom={8}
-            defaultCenter={{ lat: -34.397, lng: 150.644 }}
-            onClick={this.handleMapClick}
-        >
-            {props.isMarkerShown && <Marker position={{ lat: -34.397, lng: 150.644 }} />}
-        </GoogleMap>
-        ))
-
 
         let googleMapURL = "https://maps.googleapis.com/maps/api/js?libraries=places&key=" + this.state.googleAPIKey;
 
@@ -160,10 +185,12 @@ export class Package extends Component {
                             </p>
                             <GoogleMapComponent
                                 isMarkerShown
+                                handleMapClick={this.handleMapClick}
                                 googleMapURL= {googleMapURL}
+                                currentLatLng = {this.state.currentLatLng}
                                 loadingElement={<div style={{ height: `100%` }} />}
                                 containerElement={<div style={{ height: `400px` }} />}
-                                mapElement={<div style={{ height: `100%` }} />}
+                                mapElement={<div style={{ height: `100%`, borderRadius: "3px" }} />}
                             />
                             <div style={{marginTop: "20px"}}>
                                 <button className="buttons" onClick={this.clearValues}>Clear Values</button>
