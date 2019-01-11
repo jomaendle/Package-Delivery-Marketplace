@@ -6,33 +6,11 @@ html, body {
 
 .App {
   text-align: center;
+  width: 85%;
+  margin: 0 auto;
+  max-width: 1200px;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-h3 {
-  border-bottom: solid 2px rgb(45, 151, 226);
-  padding-bottom: 6px;
-  width: fit-content;
-}
 
 /*
  Header
@@ -40,7 +18,10 @@ h3 {
 
 #Header {
   height: 36px;
-  padding-top: 5px;
+  width: 100vw;
+  position: absolute;
+  top: 0;
+  left: 0;
   border-bottom: 1px solid rgb(130,130,130);
   background-color: #161B24;
 }
@@ -56,7 +37,7 @@ Menu
 
 li {
   margin-bottom: 20px;
-  margin-right: 16px;
+  margin-right: 50px;
   transition: 0.3s all; 
   transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
@@ -78,10 +59,10 @@ a:visited{
 #navigation-bar{
   list-style: none;
   text-align: left;
-  border-right: solid 1.5px rgb(190,190,190);
   height: 75%;
   top: 70px;
   position: fixed;
+  text-align: right;
   width: 200px;
   color: black;
 }
@@ -101,10 +82,10 @@ Profile
 .main-content{
   text-align: left;
   margin: 0 auto;
-  position: absolute;
   left: 280px;
   top: 50px;
-  width: 50%;
+  width: 55%;
+  margin-top: 50px;
   padding: 1em;
   border-radius: 3px;
 }
@@ -143,8 +124,14 @@ package insert */
 }
 
 #package-comment {
-  width: 260px;
+  width: 99%;
   height: 60px;
+}
+
+.p-border {
+  border-radius: 2px;
+  padding: 1em 0 ;
+   /* box-shadow: 0 1px 5px #a5a5a5*/
 }
 
 /**
@@ -299,7 +286,7 @@ Become driver page
 }
 
 .listed-packages:hover {
-  background-color: rgb(245,245,245);
+  background-color: rgb(242,242,242);
 }
 
 .listed-packages:active {
@@ -327,4 +314,58 @@ Become driver page
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Smartphones (portrait and landscape) ----------- */
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 480px) {
+/* Styles */
+}
+
+/* Smartphones (landscape) ----------- */
+@media only screen 
+and (min-width : 321px) {
+/* Styles */
+}
+
+/* Smartphones (portrait) ----------- */
+@media only screen 
+and (max-width : 320px) {
+/* Styles */
+}
+
+/* iPads (portrait and landscape) ----------- */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) {
+/* Styles */
+}
+
+/* iPads (landscape) ----------- */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : landscape) {
+/* Styles */
+}
+
+/* iPads (portrait) ----------- */
+@media only screen 
+and (min-device-width : 768px) 
+and (max-device-width : 1024px) 
+and (orientation : portrait) {
+/* Styles */
+}
+
+/* Desktops and laptops ----------- */
+@media only screen 
+and (min-width : 1224px) {
+/* Styles */
+}
+
+/* Large screens ----------- */
+@media only screen 
+and (min-width : 1824px) {
+/* Styles */
 }

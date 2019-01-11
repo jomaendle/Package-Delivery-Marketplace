@@ -35,7 +35,8 @@ export class Package extends Component {
             currentLatLng: {
                 lat: 0,
                 lng: 0
-            }
+            },
+            priority: ""
         }
         this.handleMapClick = this.handleMapClick.bind(this);
         this.clearValues = this.clearValues.bind(this);
@@ -57,6 +58,9 @@ export class Package extends Component {
           .then(res => {
             const persons = res.data;
             this.setState({ persons });
+          })
+          this.setState({
+              priority: "Priority: " + this.rangeRef.current.value
           })
     }
 
@@ -131,6 +135,13 @@ export class Package extends Component {
         });
     }
 
+    updatePriorityLabel(e) {
+        e.preventDefault();
+        this.setState({
+            priority: "Priority: " + this.rangeRef.current.value
+        })
+    }
+
 
     render() {
 
@@ -146,7 +157,7 @@ export class Package extends Component {
                     </h3>
                     <div>
                         <form onSubmit={this.handleSubmit}>
-                            <p>
+                            <p  className="p-border">
                                 <span>What's the size of your package?</span>
                                 <select name="size" ref={this.sizeRef} className="package-insert-select">
                                     <option value="small">Small</option>
@@ -154,7 +165,7 @@ export class Package extends Component {
                                     <option value="large">Large</option>
                                 </select>
                             </p>
-                            <p>
+                            <p className="p-border">
                                 <span>
                                     How heavy is it?
                                 </span>
@@ -165,18 +176,19 @@ export class Package extends Component {
                                 </select>
                             </p>
                             <div style={{marginTop: "10px"}}>
-                                <span>
-                                    What priority should it have?
-                                    <p>
-                                        <input type="range" ref={this.rangeRef} name="priority"
-                                                min="1" max="5" style={{ width: "250px"}}
-                                               //onChange={(e) => {this.updatePriorityLabel(e)}}
-                                        />
-                                    </p>
-
-                                </span>
-                            </div>
-                            <p>
+                                <p className="p-border">
+                                What priority should it have? <br/><br/>
+                                    <span style={{marginRight: "15px"}}>
+                                        {this.state.priority}
+                                    </span>
+                                    <input type="range" ref={this.rangeRef} name="priority"
+                                            min="1" max="5" style={{ width: "250px"}}
+                                            onChange={(e) => {this.updatePriorityLabel(e)}}
+                                    />
+                                    
+                                </p>
+                        </div>
+                            <p className="p-border">
                                 <span>Any Comments?</span>
                                 <textarea id="package-comment" name="comment" 
                                 className="package-insert-select"
