@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Navigation from './components/Navigation';
 import Header from "./components/Header";
+import { Link } from "react-router-dom";
 import { withAuthentication } from "./Session";
 import './App.css';
 
@@ -26,15 +27,18 @@ class Profile extends Component {
         username: user.displayName,
         email: user.email,
         photoURL: user.photoURL
-      })
-     /* console.log(user.uid);
-      user.providerData.forEach(function (profile) {
-        console.log("Sign-in provider: " + profile.providerId);
-        console.log("  Provider-specific UID: " + profile.uid);
-        console.log("  Name: " + profile.displayName);
-        console.log("  Email: " + profile.email);
-        console.log("  Photo URL: " + profile.photoURL);
-      });*/
+      },
+      this.showUserData);
+    }
+  }
+
+  showUserData() {
+    let usernameLabel = this.refs.username;
+    let emailLabel = this.refs.email;
+
+    if(this.state.userID != null){
+      usernameLabel.value = "Username: " + this.state.username;
+      emailLabel.value = "Email: " + this.state.email;
     }
   }
 
@@ -47,14 +51,18 @@ class Profile extends Component {
       <div className="App">
         <Header />
         <Navigation />
-        <div id="profile-content">
-            <span>
-                Username: {this.state.username}
-            </span>
-            <br/>
-            <span>
+        <div className="main-content">
+          <div  className="profile-information">
+              <h3 ref="username">
+                  {this.state.username ? this.state.username : "Username"}
+              </h3>
+          </div>
+          <div  className="profile-information">
+              <span ref="email">
                 Email: {this.state.email}
-            </span>
+              </span>
+          </div>
+          <Link to="/profile-edit">Edit Profile</Link>
         </div>
       </div>
     );
