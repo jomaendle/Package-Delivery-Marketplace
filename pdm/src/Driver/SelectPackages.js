@@ -65,13 +65,17 @@ export class Package extends Component {
     }
 
     ContinueToConfirmPage(){
-        this.props.history.push({
-            pathname: '/driver-confirm',
-            state: { 
-                prevState: this.props.location.state,
-                selectedPackages: this.state.selectedPackages
-            }
-          })
+        if(this.state.selectedPackages.length === 0){
+            alert("Select at least one package")
+        }else{
+            this.props.history.push({
+                pathname: '/driver-confirm',
+                state: { 
+                    prevState: this.props.location.state,
+                    selectedPackages: this.state.selectedPackages
+                }
+            })
+        }
     }
 
     render() {
@@ -79,25 +83,22 @@ export class Package extends Component {
         return (
             <div className="App">
                 <Header />
-                <Navigation/>
+                <Navigation currentPage="delivery"/>
                 <div className="main-content">
-                    <h3>
-                        Want to deliver packages? 
-                    </h3>
-                    <h4>
-                    Select one or more packages to proceed.
-                    </h4>
+                    <h2>
+                     Select one or more packages to proceed.
+                    </h2>
                     <div>
                         { this.state.persons.map((person, index) => {
                             return(
-                                <div className="listed-packages" key={index} onClick={this.handlePackageClick} >
+                                <div className="listed-packages" key={index} onMouseDown={this.handlePackageClick} >
                                     <span>{person.name}</span>
                                 </div>
                         )})}
 
                     </div>
-                    <button className="buttons" onClick={this.ReturnToPreviousPage}>Back</button>
-                    <button className="buttons" onClick={this.ContinueToConfirmPage} style={{float: "right"}}>Continue</button>
+                    <button className="buttons" onMouseDown={this.ReturnToPreviousPage}>Back</button>
+                    <button className="buttons cta-button" onMouseDown={this.ContinueToConfirmPage} style={{float: "right"}}>Continue</button>
                 </div>
             </div>
         );

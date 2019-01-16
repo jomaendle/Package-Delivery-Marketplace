@@ -21,7 +21,6 @@ export class Package extends Component {
 
     constructor() {
         super();
-
         this.state = {
             startLocation: {
                 lon: null,
@@ -36,32 +35,32 @@ export class Package extends Component {
                 lat: 0,
                 lng: 0
             },
-            priority: ""
+            priority: "",
+            price: ""
         }
         this.handleMapClick = this.handleMapClick.bind(this);
         this.clearValues = this.clearValues.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.continueToFinalPage = this.continueToFinalPage.bind(this);
 
         //Create refs
         this.rangeRef = React.createRef();
         this.sizeRef = React.createRef();
         this.weightRef = React.createRef();
         this.commentRef = React.createRef();
+        this.priceRef = React.createRef();
     }
 
     componentWillMount() {
         this.getGeoLocation();
+        
     }
 
     componentDidMount() {
-        axios.get(`https://jsonplaceholder.typicode.com/users`)
-          .then(res => {
-            const persons = res.data;
-            this.setState({ persons });
-          })
-          this.setState({
-              priority: "Priority: " + this.rangeRef.current.value
-          })
+        this.setState({
+            priority: "Priority: " + this.rangeRef.current.value,
+            price: "Price: " + this.priceRef.current.value + "€"
+        })
     }
 
     handleMapClick(e) {
@@ -122,26 +121,77 @@ export class Package extends Component {
 
     handleSubmit = (e) => {
         e.preventDefault();
-        
-        const size = this.sizeRef.current.value;
-        const weight = this.weightRef.current.value;
-        const priority = this.rangeRef.current.value;
-        const comment = this.commentRef.current.value;
+        if(this.state.destination.lon || this.state.startLocation.lon){
+            
+            const size = this.sizeRef.current.value;
+            const weight = this.weightRef.current.value;
+            const priority = this.rangeRef.current.value;
+            const comment = this.commentRef.current.value;
+            const price = this.priceRef.current.value;
+    
+    
+            axios.post('http://localhost:8080/', {
+                size,
+                weight,
+                priority,
+                comment,
+                price,
+                startLocation: this.state.startLocation,
+                destination: this.state.destination
+            })
+            .then(response => { 
+                console.log(response)
+            })
+            .catch(error => {
+                console.log(error.response)
+            });
 
-        axios.post('/', { size, weight, priority, comment })
-        .then((result) => {
-          //access the results here....
-            console.log("res: "+result );
-        });
+            let currentPackage = {
+                size,
+                weight,
+                priority,
+                comment,
+                price
+            }
+
+            this.continueToFinalPage(currentPackage);
+        }else{
+            alert("Please select the start and final destination of the package. ")
+        }
+    }
+
+    redirectToCompletePage(){
+        this.props.history.push({
+            pathname: '/driver',
+            state: { 
+                currentLatLng: this.state.currentLatLng
+            }
+        })
     }
 
     updatePriorityLabel(e) {
         e.preventDefault();
         this.setState({
-            priority: "Priority: " + this.rangeRef.current.value
+            priority: "Priority: " + this.rangeRef.current.value 
         })
     }
 
+    updatePriceLabel(e) {
+        e.preventDefault();
+        this.setState({
+            price: "Price: " + this.priceRef.current.value + "€"
+        })
+    }
+
+    continueToFinalPage(obj) {
+        this.props.history.push({
+            pathname: '/final',
+            state: { 
+                userType: "customer",
+                package: obj
+            }
+        })
+    }
 
     render() {
 
@@ -150,15 +200,15 @@ export class Package extends Component {
         return (
             <div className="App">
                 <Header />
-                <Navigation/>
+                <Navigation currentPage="package"/>
                 <div className="main-content">
-                    <h3>
+                    <h2>
                         Insert a new package to the marketplace
-                    </h3>
+                    </h2>
                     <div>
                         <form onSubmit={this.handleSubmit}>
                             <p  className="p-border">
-                                <span>What's the size of your package?</span>
+                                <span style={{fontWeight: 600}}>What's the size of your package?</span>
                                 <select name="size" ref={this.sizeRef} className="package-insert-select">
                                     <option value="small">Small</option>
                                     <option value="medium">Medium</option>
@@ -166,7 +216,7 @@ export class Package extends Component {
                                 </select>
                             </p>
                             <p className="p-border">
-                                <span>
+                                <span style={{fontWeight: 600}}>
                                     How heavy is it?
                                 </span>
                                 <select name="weight" ref={this.weightRef} className="package-insert-select">
@@ -177,8 +227,10 @@ export class Package extends Component {
                             </p>
                             <div style={{marginTop: "10px"}}>
                                 <p className="p-border">
-                                What priority should it have? <br/><br/>
-                                    <span style={{marginRight: "15px"}}>
+                               <span  style={{fontWeight: 600}}>
+                               What priority should it have?
+                                </span>  <br/><br/>
+                                    <span style={{marginRight: "20px"}}>
                                         {this.state.priority}
                                     </span>
                                     <input type="range" ref={this.rangeRef} name="priority"
@@ -186,10 +238,22 @@ export class Package extends Component {
                                             onChange={(e) => {this.updatePriorityLabel(e)}}
                                     />
                                     
-                                </p>
+                            </p>
+                            <p className="p-border">
+                                <span style={{fontWeight: 600}}>
+                                    Whats your maximum price?
+                                </span> <br/><br/>
+                                <span style={{marginRight: "15px"}}>
+                                        {this.state.price}
+                                    </span>
+                                    <input type="range" ref={this.priceRef} name="price"
+                                            min="1" max="100" style={{ width: "250px"}}
+                                            onChange={(e) => {this.updatePriceLabel(e)}}
+                                    />
+                            </p>
                         </div>
                             <p className="p-border">
-                                <span>Any Comments?</span>
+                                <span style={{fontWeight: 600}}>Any Comments?</span>
                                 <textarea id="package-comment" name="comment" 
                                 className="package-insert-select"
                                 ref={this.commentRef}
@@ -202,11 +266,11 @@ export class Package extends Component {
                                 currentLatLng = {this.state.currentLatLng}
                                 loadingElement={<div style={{ height: `100%` }} />}
                                 containerElement={<div style={{ height: `400px` }} />}
-                                mapElement={<div style={{ height: `100%`, borderRadius: "3px" }} />}
+                                mapElement={<div style={{ height: `100%`, borderRadius: "8px", boxShadow: "0 2px 10px #8e8e8ecc" }} />}
                             />
                             <div style={{marginTop: "20px"}}>
-                                <button className="buttons" onClick={this.clearValues}>Clear Values</button>
-                                <input className="buttons" type="submit" value="Submit"/>
+                                <button className="buttons critical-button" onMouseDown={this.clearValues}>Clear Values</button>
+                                <input className="buttons cta-button" type="submit" style={{float: "right"}} value="Submit"/>
                             </div>
                         </form>
                     </div>

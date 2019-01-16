@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Navigation from '../components/Navigation';
 import Header from "../components/Header";
-import axios from 'axios';
 import '../App.css';
 import { withAuthentication } from "../Session";
 require('dotenv').config();
@@ -20,6 +19,7 @@ export class ConfirmationPage extends Component {
             }
         }
         this.ReturnToPreviousPage = this.ReturnToPreviousPage.bind(this);
+        this.continueToFinalPage = this.continueToFinalPage.bind(this);
     }
 
     componentWillMount() {
@@ -41,47 +41,53 @@ export class ConfirmationPage extends Component {
           })
     }
 
+    continueToFinalPage() {
+        this.props.history.push({
+            pathname: '/final',
+            state: { 
+                userType: "driver",
+            }
+        })
+    }
+
     render() {
 
         if(this.state.selectedPackages) {
             return (
                 <div className="App">
                     <Header />
-                    <Navigation/>
+                    <Navigation currentPage="delivery"/>
                     <div className="main-content">
-                        <h3>
+                        <h2>
                             Congrats! Check your information and submit 
-                        </h3>
-                        <h4>
-                        
-                        </h4>
+                        </h2>
                         <div>
                             <p style={{marginBottom: "45px"}}>
-                                <h5>
+                                <span style={{fontWeight: 600}}>
                                     Your available time level is:
-                                </h5> {this.state.timeAvailable}
+                                </span> {this.state.timeAvailable}
                             </p>
                             <p  style={{marginBottom: "45px"}}> 
-                                <h5>
+                                <span style={{fontWeight: 600}}>
                                     Your current position is:
-                                </h5> {this.state.currentLatLng.lat} , {this.state.currentLatLng.lng}
+                                </span> {this.state.currentLatLng.lat} , {this.state.currentLatLng.lng}
                             </p>
 
                             <p>
-                                <h5>
+                                <span style={{fontWeight: 600}}>
                                     You selected the following packages to deliver:
-                                </h5>
+                                </span>
                             </p>
                             { this.state.selectedPackages.map((person, index) => {
                                 return(
-                                    <div className="listed-packages" key={index} onClick={this.handlePackageClick} >
+                                    <div className="listed-packages" key={index} onMouseDown={this.handlePackageClick} >
                                         <span>{person}</span>
                                     </div>
                             )})}
     
                         </div>
-                        <button className="buttons" onClick={this.ReturnToPreviousPage}>Back</button>
-                        <button className="buttons" style={{float: "right"}}>Confirm</button>
+                        <button className="buttons" onMouseDown={this.ReturnToPreviousPage}>Back</button>
+                        <button className="buttons cta-button" onMouseDown={this.continueToFinalPage} style={{float: "right"}}>Confirm</button>
                     </div>
                 </div>
             );
@@ -101,7 +107,7 @@ export class ConfirmationPage extends Component {
                         <div>
     
                         </div>
-                        <button className="buttons" onClick={this.ReturnToPreviousPage}>Back</button>
+                        <button className="buttons" onMouseDown={this.ReturnToPreviousPage}>Back</button>
                         <button className="buttons" style={{float: "right"}}>Submit</button>
                     </div>
                 </div>

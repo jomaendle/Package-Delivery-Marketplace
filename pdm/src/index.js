@@ -10,6 +10,7 @@ import SelectPackages from "./Driver/SelectPackages"
 import Driver from "./Driver/Driver"
 import ConfirmPage from "./Driver/ConfirmPage"
 import ProfileEdit from "./ProfileEdit";
+import FinalPage from "./FinalPage"
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import * as serviceWorker from './serviceWorker';
 import Firebase, { FirebaseContext } from './Firebase';
@@ -28,6 +29,7 @@ ReactDOM.render(
                 <Route exact path="/driver-select-packages" component={SelectPackages}></Route>
                 <Route exact path="/driver" component={Driver}></Route>
                 <Route exact path="/driver-confirm" component={ConfirmPage}></Route>
+                <Route exact path="/final" component={FinalPage}></Route>
             </Switch>
         </BrowserRouter>
     </FirebaseContext.Provider>, document.getElementById('root')

@@ -4,49 +4,91 @@ import SignOutButton from "../SignOut";
 import { Link } from "react-router-dom";
 import { AuthUserContext } from "../Session";
 
-const NavigationAuth = () => (
-  <div>
-    <ul  id="navigation-bar">
-      <li>
-        <Link className="navigation-links" to={"/"}> Home </Link>
-      </li>
-      <li>
-        <Link className="navigation-links" to={"/profile"}> Profile </Link>
-      </li>
-      <li>
-        <Link to={"/new-package"}> Insert new Package </Link>
-      </li>
-      <li>
-      <Link to={"/driver"}> Become a Driver </Link>
-      </li>
-      <li>
-        <SignOutButton />
-      </li>
-    </ul>
-  </div>
-);
+ class Navigation extends React.Component{
 
-const NavigationNonAuth = () => (
-  <div>
-    <ul id="navigation-bar">
-      <li>
-        <Link className="navigation-links" to={"/"}> Home </Link>
-      </li>
-      <li>
-        <Link className="navigation-links" to={"/login"}> Sign In </Link>
-      </li>
-    </ul>
+  constructor() {
+    super();
+    this.state = {
+        currentPage: ""
+    }
 
-  </div>
-);
+  }
+  
+  componentWillMount() {
+    this.setState({
+      currentPage: this.props.currentPage
+    })
+    console.log(this.props)
+  }
+  render() {
 
-const Navigation = () => (
-  <div>
-    <AuthUserContext.Consumer>
-      {authUser =>
-        authUser ? <NavigationAuth /> : <NavigationNonAuth />}
-    </AuthUserContext.Consumer>
-  </div>
-);
+    const NavigationAuth = (props) => (
+      <div>
+        <ul  id="navigation-bar">
+          <li>
+            {this.state.currentPage==="home" 
+            ?  <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/"}> Home </Link>
+            :  <Link className="navigation-links" to={"/"}> Home </Link>}
+          </li>
+          <li>
+          {this.state.currentPage==="profile" 
+            ?  <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/profile"}> Profile </Link>
+            :  <Link className="navigation-links" to={"/profile"}> Profile </Link>}
+          </li>
+         
+          {this.state.currentPage==="package" 
+            ?   
+            <li>
+                <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/new-package"}> Insert Package </Link>
+            </li>
+            :  
+            <li>
+                <Link className="navigation-links" to={"/new-package"}> Insert Package </Link>
+            </li>}
+          
+          {this.state.currentPage==="delivery" 
+            ? 
+            <li >
+               <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/driver"}>Delivery </Link>
+            </li>
+            :
+            <li >
+                <Link className="navigation-links" to={"/driver"}> Delivery </Link>
+            </li>}
+          <li>
+            <SignOutButton />
+          </li>
+        </ul>
+      </div>
+    );
+    
+    const NavigationNonAuth = () => (
+      <div>
+        <ul id="navigation-bar">
+          <li>
+            <Link className="navigation-links" to={"/"}> Home </Link>
+          </li>
+          <li>
+            <Link className="navigation-links" to={"/login"}> Sign In </Link>
+          </li>
+        </ul>
+    
+      </div>
+    );
+
+    return(
+      <div>
+        <AuthUserContext.Consumer>
+          {authUser =>
+            authUser ? <NavigationAuth currentPage={this.state.currentPage} /> : <NavigationNonAuth currentPage={this.state.currentPage} />}
+        </AuthUserContext.Consumer>
+      </div>
+    )
+  }
+}
+
+let currentPage;
+
+
 
 export default Navigation;

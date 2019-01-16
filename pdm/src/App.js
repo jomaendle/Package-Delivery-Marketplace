@@ -4,13 +4,15 @@ import Header from "./components/Header";
 import './App.css';
 import { withAuthentication } from "./Session";
 
-class App extends Component {
+
+class App extends Component { 
+
 
   render() {
     return (
         <div className="App">
         <Header />
-        <Navigation/>
+        <Navigation currentPage="home"/>
         </div>
     );
   }

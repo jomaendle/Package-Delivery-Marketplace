@@ -50,7 +50,7 @@ class Profile extends Component {
     return (
       <div className="App">
         <Header />
-        <Navigation />
+        <Navigation currentPage="profile"/>
         <div className="main-content">
           <div  className="profile-information">
               <h3 ref="username">

@@ -6,7 +6,10 @@
     "@material-ui/core": "^3.8.3",
     "@material-ui/styles": "^3.0.0-alpha.7",
     "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
     "dotenv": "^6.2.0",
+    "express": "^4.16.4",
     "firebase": "^5.7.3",
     "google-maps-react": "^2.0.2",
     "material-ui": "^1.0.0-beta.47",
@@ -21,7 +24,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "start-server": "node src/Beispielserver.js"
   },
   "eslintConfig": {
     "extends": "react-app"
