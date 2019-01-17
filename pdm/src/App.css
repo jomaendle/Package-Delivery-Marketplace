@@ -39,17 +39,20 @@ Menu
 li {
   margin-bottom: 20px;
   margin-right: 50px;
-  transition: all 0.5s cubic-bezier(0.47, 0, 0.75, 0.72);
 }
 
 li:hover {
-  font-weight: 600;
+  text-shadow:
+  0 0 1px rgba(36, 36, 36, 0.671);
+  -webkit-transition: all .2s;
+  -moz-transition: all .2s;
+  -o-transition: all .2s;
+  transition: all .2s ease-in;
 }
 
 a {
   text-decoration: none;
   font-family: 'Raleway', sans-serif;
-  transition: 0.3s ease-in; 
 }
 
 a:visited{
@@ -132,6 +135,45 @@ package insert */
   border-radius: 2px;
   padding: 1em 0 ;
    /* box-shadow: 0 1px 5px #a5a5a5*/
+}
+
+.speech-bubble {
+	position: relative;
+	background: #353b48;
+  border-radius: .4em;
+}
+
+.speech-bubble:after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border: 34px solid transparent;
+  border-left-color: #353b48;
+  border-right: 0;
+  border-bottom: 0;
+  margin-top: 8px;
+  z-index: 1;
+  margin-right: -38px;
+}
+
+#selected-locations {
+  height: 92px;
+  background: rgb(53, 59, 72);
+  border: solid 1px rgb(184, 184, 184);
+  position: absolute;
+  left: 182px;
+  border-radius: 6px;
+  width: 150px;
+  font-size: 14px;
+  color: white;
+  text-align: center;
+  padding: 10px 10px;
+  opacity: 0;
+  transform: scale(0);
+  transition: .6s ease opacity,.6s ease transform;
 }
 
 /**
@@ -279,6 +321,7 @@ Button CSS
     Additional green
   */
   background-color: #4e83c5  !important;
+  margin-right: 0;
 }
 
 .cta-button:hover {
@@ -298,7 +341,6 @@ Become driver page
 */
 
 .listed-packages {
-  border: solid 1px rgb(210,210,210);
   padding: 16px 26px;
   border-radius: 3px;
   margin-bottom: 15px;

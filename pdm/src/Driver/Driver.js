@@ -9,6 +9,7 @@ require('dotenv').config();
 const GoogleMapComponent = withScriptjs(withGoogleMap((props) =>
 <GoogleMap
     defaultZoom={11}
+    center={props.currentLatLng}
     defaultCenter={ props.currentLatLng }
     ref={props.ref}
 >

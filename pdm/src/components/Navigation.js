@@ -18,7 +18,6 @@ import { AuthUserContext } from "../Session";
     this.setState({
       currentPage: this.props.currentPage
     })
-    console.log(this.props)
   }
   render() {
 

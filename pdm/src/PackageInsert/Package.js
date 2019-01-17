@@ -10,6 +10,7 @@ require('dotenv').config();
 const GoogleMapComponent = withScriptjs(withGoogleMap((props) =>
 <GoogleMap
     defaultZoom={11}
+    center={props.currentLatLng}
     defaultCenter={props.currentLatLng}
     onClick={props.handleMapClick}
 >
@@ -65,6 +66,9 @@ export class Package extends Component {
 
     handleMapClick(e) {
         if(e.latLng != null){
+            let locations = document.getElementById("selected-locations");
+            locations.style.opacity = 1;
+            locations.style.transform = 'scale(1)';
             let lat = e.latLng.lat();
             let lon = e.latLng.lng();
             
@@ -97,6 +101,10 @@ export class Package extends Component {
                             ...prevState.currentLatLng,
                             lat: position.coords.latitude,
                             lng: position.coords.longitude
+                        },
+                        startLocation: {
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude
                         }
                     }))
                 }
@@ -259,6 +267,21 @@ export class Package extends Component {
                                 ref={this.commentRef}
                                 ></textarea>
                             </p>
+                            <div id="selected-locations">
+                                <div className="speech-bubble">
+                                </div>
+                                <div style={{lineHeight: "19px"}}>
+                                    <span style={{fontWeight: 600}}>Start Location</span> <br/>
+                                    {this.state.startLocation.lat ? this.state.startLocation.lat.toFixed(3) : "0"}, {" "} 
+                                    {this.state.startLocation.lon ? this.state.startLocation.lon.toFixed(3) : "0"}
+                                </div>
+                                    <br/>
+                                <div style={{lineHeight: "19px"}}>
+                                    <span style={{fontWeight: 600}}> Destination </span> <br/>
+                                    {this.state.destination.lat ? this.state.destination.lat.toFixed(3) : "0"},  {" "}
+                                    {this.state.destination.lon ? this.state.destination.lon.toFixed(3) : "0"}
+                                </div>
+                            </div>
                             <GoogleMapComponent
                                 isMarkerShown
                                 handleMapClick={this.handleMapClick}
