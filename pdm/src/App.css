@@ -41,17 +41,11 @@ li {
   margin-right: 50px;
 }
 
-li:hover {
-  text-shadow:
-  0 0 1px rgba(36, 36, 36, 0.671);
-  -webkit-transition: all .2s;
-  -moz-transition: all .2s;
-  -o-transition: all .2s;
-  transition: all .2s ease-in;
-}
+
 
 a {
   text-decoration: none;
+  color: black;
   font-family: 'Raleway', sans-serif;
 }
 
@@ -316,6 +310,17 @@ Button CSS
   background-color: #bd3535
 }
 
+.critical-button:hover {
+  color: rgb(255, 255, 255);
+  background-color: #a22d2d;
+  border: solid 0.1em white;
+}
+
+.critical-button:active {
+  color: rgb(255, 255, 255);
+  background-color: #872525;
+}
+
 .cta-button {
   /**
     Additional green
@@ -346,6 +351,7 @@ Become driver page
   margin-bottom: 15px;
   box-shadow: 0 1px 6px 0px #7f889c94;
   transition: all 0.2s;
+  position: relative;
 }
 
 .listed-packages:hover {
@@ -368,7 +374,40 @@ Become driver page
   transition: all 0.2s ease-in;
 }
 
+/**
+  My Packages
+*/
 
+#my-packages-container{
+  width: 120%;
+  position: relative;
+}
+
+.delete-package-button {
+  height: 24px;
+  float: right;
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  transition: all 0.2s ease-in;
+}
+
+.delete-package-button:hover {
+  height: 26px;
+  bottom: 15px;
+  right: 17px;
+  transition: all 0.2s ease-out;
+}
+
+.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 1.2s, opacity 1200ms cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.packages-table {
+  padding-right: 15px;
+}
 
 @keyframes App-logo-spin {
   from {
@@ -380,35 +419,38 @@ Become driver page
 }
 
 
-@media only screen and (min-device-width : 1081px)  {
+@media (min-device-width : 1081px)  {
   #navigation-bar {
     padding-left: 0;
   }
 }
 
-@media only screen and (max-device-width : 1080px)  {
+@media (max-device-width : 1080px)  {
   #navigation-bar {
     left: 0;
   }
 }
 
-@media only screen and (min-device-width : 935px)  {
+@media (min-device-width : 935px)  {
   .main-content{
     width: 65%;
   }
 }
 
-@media only screen and (min-device-width : 880px)  {
+@media (min-device-width : 880px)  {
   .main-content{
     width: 60%;
   }
 }
 
-@media only screen and (max-device-width : 768px)  {
+@media (max-device-width : 768px)  {
   #navigation-bar {
     display: none;
   }
 
+  #my-packages-container{
+    width: 100%;
+  }
   .main-content{
     padding: 0;
     padding-top: 1px;

@@ -116,7 +116,7 @@ export class Driver extends Component {
                             googleMapURL= {googleMapURL}
                             loadingElement={<div style={{ height: `100%` }} />}
                             containerElement={<div style={{ height: `400px` }} />}
-                            mapElement={<div style={{ height: `100%`, borderRadius: "8px", boxShadow: "0 2px 10px #8e8e8ecc" }}
+                            mapElement={<div style={{ height: `100%`, borderRadius: "3px", boxShadow: "rgba(185, 185, 185, 0.8) 0px 2px 10px" }}
                              />}
                         />
                         <div style={{marginTop: "20px"}}>

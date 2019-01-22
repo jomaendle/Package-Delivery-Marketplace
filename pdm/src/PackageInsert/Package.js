@@ -136,9 +136,10 @@ export class Package extends Component {
             const priority = this.rangeRef.current.value;
             const comment = this.commentRef.current.value;
             const price = this.priceRef.current.value;
+            let res;
     
     
-            axios.post('http://localhost:8080/', {
+            axios.post('https://us-central1-studienarbeit.cloudfunctions.net/parcel', {
                 size,
                 weight,
                 priority,
@@ -148,6 +149,7 @@ export class Package extends Component {
                 destination: this.state.destination
             })
             .then(response => { 
+                res = response;
                 console.log(response)
             })
             .catch(error => {
@@ -162,7 +164,7 @@ export class Package extends Component {
                 price
             }
 
-            this.continueToFinalPage(currentPackage);
+            this.continueToFinalPage(currentPackage, res);
         }else{
             alert("Please select the start and final destination of the package. ")
         }
@@ -191,12 +193,13 @@ export class Package extends Component {
         })
     }
 
-    continueToFinalPage(obj) {
+    continueToFinalPage(currentPackage, res) {
         this.props.history.push({
             pathname: '/final',
             state: { 
                 userType: "customer",
-                package: obj
+                package: currentPackage,
+                response: res
             }
         })
     }
@@ -289,7 +292,7 @@ export class Package extends Component {
                                 currentLatLng = {this.state.currentLatLng}
                                 loadingElement={<div style={{ height: `100%` }} />}
                                 containerElement={<div style={{ height: `400px` }} />}
-                                mapElement={<div style={{ height: `100%`, borderRadius: "8px", boxShadow: "0 2px 10px #8e8e8ecc" }} />}
+                                mapElement={<div style={{ height: `100%`, borderRadius: "3px", boxShadow: "rgba(185, 185, 185, 0.8) 0px 2px 10px"}} />}
                             />
                             <div style={{marginTop: "20px"}}>
                                 <button className="buttons critical-button" onMouseDown={this.clearValues}>Clear Values</button>

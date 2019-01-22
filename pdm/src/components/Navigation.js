@@ -34,26 +34,17 @@ import { AuthUserContext } from "../Session";
             ?  <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/profile"}> Profile </Link>
             :  <Link className="navigation-links" to={"/profile"}> Profile </Link>}
           </li>
-         
+         <li>
           {this.state.currentPage==="package" 
-            ?   
-            <li>
-                <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/new-package"}> Insert Package </Link>
-            </li>
-            :  
-            <li>
-                <Link className="navigation-links" to={"/new-package"}> Insert Package </Link>
-            </li>}
-          
-          {this.state.currentPage==="delivery" 
-            ? 
-            <li >
-               <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/driver"}>Delivery </Link>
-            </li>
-            :
-            <li >
-                <Link className="navigation-links" to={"/driver"}> Delivery </Link>
-            </li>}
+          ? <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/packages"}> My Packages </Link>
+          :  <Link className="navigation-links" to={"/packages"}> My Packages </Link>}
+          </li>
+      	  <li>
+            {this.state.currentPage==="delivery" 
+              ? <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/driver"}>Delivery </Link>
+              : <Link className="navigation-links" to={"/driver"}> Delivery </Link>
+            }
+          </li>
           <li>
             <SignOutButton />
           </li>

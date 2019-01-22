@@ -26,26 +26,22 @@ export class Package extends Component {
                 selectedPackages: this.props.location.state.selectedPackages
             })
         }
-        console.log(this.state.selectedPackages)
     }
 
     componentDidMount() {
-        axios.get(`https://jsonplaceholder.typicode.com/users`)
+
+        axios.post(`https://us-central1-studienarbeit.cloudfunctions.net/parcel`, {
+            action: "list",
+            parcel_id: ""
+        })
           .then(res => {
+              console.log(res.data.list)
             const persons = res.data;
-            this.setState({ persons });
+            if(res.data.list){
+                this.setState({ persons });
+            }
           })
-        console.log(this.props.location.state.currentLatLng)
-          
-        /*let allElements = document.getElementsByClassName("listed-packages");
-        console.log(allElements)
-        if(allElements){
-            allElements.map((element) => {
-                if(this.state.selectedPackages.includes(element.innerHTML)){
-                    element.className = "listed-packages-clicked"
-                }
-            })
-        }*/
+       
     }
 
     handlePackageClick = (e) => {
@@ -89,12 +85,15 @@ export class Package extends Component {
                      Select one or more packages to proceed.
                     </h2>
                     <div>
-                        { this.state.persons.map((person, index) => {
+                        { this.state.persons.length !== 0 ? this.state.persons.map((person, index) => {
                             return(
                                 <div className="listed-packages" key={index} onMouseDown={this.handlePackageClick} >
                                     <span>{person.name}</span>
                                 </div>
-                        )})}
+                        )}):
+                        <div style={{marginBottom: "25px"}}>
+                            There are no packages available right now. Please check later again.
+                        </div>}
 
                     </div>
                     <button className="buttons" onMouseDown={this.ReturnToPreviousPage}>Back</button>

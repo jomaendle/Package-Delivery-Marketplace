@@ -12,16 +12,17 @@ export class FinalPage extends Component {
         
         this.state = {
             userType: "",
-            package: ""
+            package: "",
+            response: ""
         }
     }
 
     componentWillMount() {
         this.setState({
             userType: this.props.location.state.userType,
-            package: this.props.location.state.package
+            package: this.props.location.state.package,
+            response: this.props.location.state.response ? this.props.location.state.response : ""
         })
-        console.log(this.props.location.state.package)
     }
 
     render() {
