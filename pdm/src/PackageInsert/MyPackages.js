@@ -37,7 +37,7 @@ export class MyPackages extends Component {
             setTimeout(function(){ 
                 let filteredArray = this.state.packages.filter(item => item.parcel_id !== p_id)
                 this.setState({packages: filteredArray}); 
-            }.bind(this), 1500);
+            }.bind(this), 1150);
             
         }
     }

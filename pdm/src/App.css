@@ -97,9 +97,9 @@ Profile
 
 #searchTextField{
   margin-bottom: 15px;
-  margin-left: 10%;
-  height: 30px;
-  width: 79%;
+  height: 40px;
+  width: 100%;
+  box-sizing: border-box;
   border-radius: 5px;
   border: solid 1px rgb(225,225,225);
   padding-left: 15px;
@@ -113,11 +113,20 @@ package insert */
   display: block;
   margin-top: 12px;
   border-radius: 2px;
+  width: 240px;
   border-color: rgb(220,220,220);
   padding: 4px;
   box-shadow: 0 1px 3px #cacaca;
   border: none;
   border-bottom: solid 2px #4e83c5;
+}
+
+#map {
+  margin: 0 auto;
+  width: 100%;
+  border-radius: 5px;
+  height: 380px;
+  position: relative;
 }
 
 #package-comment {

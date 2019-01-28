@@ -12,7 +12,20 @@ export class Package extends Component {
         super();
         
         this.state = {
-            persons: [],
+            packages: [
+                {
+                    parcel_id: 1,
+                    parcel_status: "home", 
+                    title: "P1",
+                    time_created: "Tue, 22 Jan 2019 05:42:10 GMT"
+                },
+                {
+                    parcel_id: 2,
+                    parcel_status: "home", 
+                    title: "P2",
+                    time_created: "Tue, 22 Jan 2019 08:22:10 GMT"
+                }
+            ],
             selectedPackages: []
         }
         this.handlePackageClick = this.handlePackageClick.bind(this);
@@ -30,23 +43,42 @@ export class Package extends Component {
 
     componentDidMount() {
 
-        axios.post(`https://us-central1-studienarbeit.cloudfunctions.net/parcel`, {
+       /* axios.post(`https://us-central1-studienarbeit.cloudfunctions.net/parcel`, {
             action: "list",
             parcel_id: ""
         })
           .then(res => {
               console.log(res.data.list)
-            const persons = res.data;
+            const packages = res.data;
             if(res.data.list){
-                this.setState({ persons });
+                this.setState({ packages });
             }
           })
-       
+       */
     }
 
     handlePackageClick = (e) => {
-        if(!this.state.selectedPackages.includes(e.target.querySelector("span").innerHTML)){
-            this.state.selectedPackages.push(e.target.querySelector("span").innerHTML);
+        //Get all spans from click event
+        let allSpans = e.target.querySelectorAll("span");
+        let list = [];
+
+        //Catch innerHTML Information from spans
+        allSpans.forEach(element => {
+            list.push(element.innerHTML);
+        });
+
+        let selectedPackage;
+        if(!this.state.selectedPackages.includes(list[0].innerHTML) && list !== []){
+            //Create new package object to pass it to confirmation page
+            selectedPackage = {
+                parcel_id: list[0],
+                parcel_status: list[1], 
+                title: list[2],
+                time_created: list[3]
+            }
+            
+            //Add new package to currently selected packages.
+            this.state.selectedPackages.push(selectedPackage);
             e.target.className = "listed-packages-clicked";
         }
     }
@@ -85,10 +117,13 @@ export class Package extends Component {
                      Select one or more packages to proceed.
                     </h2>
                     <div>
-                        { this.state.persons.length !== 0 ? this.state.persons.map((person, index) => {
+                        { this.state.packages.length !== 0 ? this.state.packages.map((p, index) => {
                             return(
                                 <div className="listed-packages" key={index} onMouseDown={this.handlePackageClick} >
-                                    <span>{person.name}</span>
+                                    <span className="packages-table">{p.parcel_id}</span>
+                                    <span className="packages-table">{p.parcel_status}</span>
+                                    <span className="packages-table">{p.title}</span>
+                                    <span className="packages-table">{p.time_created}</span>
                                 </div>
                         )}):
                         <div style={{marginBottom: "25px"}}>

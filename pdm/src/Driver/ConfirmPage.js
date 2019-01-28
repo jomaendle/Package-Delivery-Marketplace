@@ -28,8 +28,6 @@ export class ConfirmationPage extends Component {
             timeAvailable: this.props.location.state.prevState.timeAvailable,
             currentLatLng: this.props.location.state.prevState.currentLatLng
         })
-
-        console.log(this.props.location.state);
     }
 
     ReturnToPreviousPage() {
@@ -78,10 +76,13 @@ export class ConfirmationPage extends Component {
                                     You selected the following packages to deliver:
                                 </span>
                             </p>
-                            { this.state.selectedPackages.map((person, index) => {
+                            { this.state.selectedPackages.map((p, index) => {
                                 return(
                                     <div className="listed-packages" key={index} onMouseDown={this.handlePackageClick} >
-                                        <span>{person}</span>
+                                        <span className="packages-table">{p.parcel_id}</span>
+                                        <span className="packages-table">{p.parcel_status}</span>
+                                        <span className="packages-table">{p.title}</span>
+                                        <span className="packages-table">{p.time_created}</span>
                                     </div>
                             )})}
     
