@@ -2,20 +2,9 @@ import React, { Component } from 'react';
 import Navigation from '../components/Navigation';
 import Header from "../components/Header";
 import '../App.css';
-import { withScriptjs, withGoogleMap, GoogleMap, Marker } from "react-google-maps";
+import Map from "../components/Maps"
 import { withAuthentication } from "../Session";
 require('dotenv').config();
-
-const GoogleMapComponent = withScriptjs(withGoogleMap((props) =>
-<GoogleMap
-    defaultZoom={11}
-    center={props.currentLatLng}
-    defaultCenter={ props.currentLatLng }
-    ref={props.ref}
->
-    {props.isMarkerShown && <Marker position={props.currentLatLng} />}
-</GoogleMap>
-))
 
 export class Driver extends Component {
 
@@ -23,10 +12,10 @@ export class Driver extends Component {
         super();
         
         this.state = {
-            googleAPIKey: process.env.REACT_APP_GOOLE_API_KEY,
             currentLatLng: {
                 lat: 0,
-                lng: 0
+                lng: 0,
+                address: ""
             },
             time: 0
         }
@@ -38,29 +27,6 @@ export class Driver extends Component {
         this.setState({
             time: "Hours: " + this.rangeRef.current.value
         })
-    }
-    
-
-    componentWillMount(){
-        this.getGeoLocation();
-    }
-
-    getGeoLocation = () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                position => {
-                    this.setState(prevState => ({
-                        currentLatLng: {
-                            ...prevState.currentLatLng,
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        }
-                    }))
-                }
-            )
-        } else {
-           console.log("Failed fetching current GPS coordinates.");
-        }
     }
 
     updateTimeLabel(e) {
@@ -79,10 +45,13 @@ export class Driver extends Component {
           })
     }   
 
-    render() {
+    getDataFromMaps = (data) => {
+        this.setState({
+            currentLatLng: data
+        })
+    }
 
-        let googleMapURL = "https://maps.googleapis.com/maps/api/js?libraries=places&key=" + this.state.googleAPIKey;
-        const { currentLatLng } = this.state;
+    render() {
         return (
 
             <div className="App">
@@ -92,9 +61,12 @@ export class Driver extends Component {
                     <h2>
                         Want to deliver packages? 
                     </h2>
-                   
                     <div>
                         <div>
+                            <span style={{marginBottom: "15px", marginTop: "40px", display: "block", fontWeight: 600}}>Your current location</span>
+                            <Map callbackFromDriver={this.getDataFromMaps} 
+                            allowMultipleClicks="false"
+                            showAutoCompleteBar="false" />
                             <p className="p-border">
                             <span style={{fontWeight: 600}}>How much time do you have for delivering?</span><br/><br/>
                                 <span style={{marginRight: "15px"}}>
@@ -107,18 +79,6 @@ export class Driver extends Component {
 
                             </p>
                         </div>
-
-                        <span style={{marginBottom: "15px", marginTop: "40px", display: "block", fontWeight: 600}}>Your current location</span>
-                        <GoogleMapComponent
-                            isMarkerShown={true}
-                            center={currentLatLng}
-                            currentLatLng={this.state.currentLatLng}
-                            googleMapURL= {googleMapURL}
-                            loadingElement={<div style={{ height: `100%` }} />}
-                            containerElement={<div style={{ height: `400px` }} />}
-                            mapElement={<div style={{ height: `100%`, borderRadius: "3px", boxShadow: "rgba(185, 185, 185, 0.8) 0px 2px 10px" }}
-                             />}
-                        />
                         <div style={{marginTop: "20px"}}>
                             <button className="buttons cta-button" onMouseDown={this.handleSubmit} style={{float: "right"}}>Continue</button>
                         </div>

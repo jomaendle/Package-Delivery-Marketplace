@@ -68,7 +68,8 @@ export class ConfirmationPage extends Component {
                             <p  style={{marginBottom: "45px"}}> 
                                 <span style={{fontWeight: 600}}>
                                     Your current position is:
-                                </span> {this.state.currentLatLng.lat} , {this.state.currentLatLng.lng}
+                                </span> {this.state.currentLatLng.address} <br/>
+                                {this.state.currentLatLng.lat.toFixed(4)} , {this.state.currentLatLng.lng.toFixed(4)}
                             </p>
 
                             <p>
