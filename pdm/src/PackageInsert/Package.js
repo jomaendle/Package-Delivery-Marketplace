@@ -6,7 +6,7 @@ import Navigation from '../components/Navigation';
 import Header from "../components/Header";
 import Map from "../components/Maps"
 import '../App.css';
-import { withAuthentication } from "../Session";
+import { withAuthentication, AuthUserContext } from "../Session";
 require('dotenv').config();
 
 export class Package extends Component {
@@ -189,7 +189,11 @@ export class Package extends Component {
                 <Header />
                 <Navigation currentPage="package"/>
                 <div className="main-content">
-                    <h2>
+                <AuthUserContext.Consumer>
+                    {authUser =>
+                        authUser ?
+                            <div>
+                                <h2>
                         Insert a new package to the marketplace
                     </h2>
                     <div>
@@ -266,8 +270,18 @@ export class Package extends Component {
                                 <button className="buttons critical-button" onMouseDown={this.clearValues}>Clear Values</button>
                                 <input className="buttons cta-button" type="submit" style={{float: "right"}} value="Submit"/>
                             </div>
-                        </form>
-                    </div>
+                                </form>
+                            </div>
+                            </div>
+                        :  
+                            <div>
+                                <div className="userNotLoggedIn-label">
+                                    Please log in to access this page.
+                                </div> 
+                            </div>
+                        }
+                </AuthUserContext.Consumer>
+                    
                 </div>
             </div>
         );

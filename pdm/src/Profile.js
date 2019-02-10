@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Navigation from './components/Navigation';
 import Header from "./components/Header";
 import { Link } from "react-router-dom";
-import { withAuthentication } from "./Session";
+import { withAuthentication, AuthUserContext } from "./Session";
 import './App.css';
 
 
@@ -52,17 +52,28 @@ class Profile extends Component {
         <Header />
         <Navigation currentPage="profile"/>
         <div className="main-content">
-          <div  className="profile-information">
+        <AuthUserContext.Consumer>
+          {authUser =>
+            authUser ? 
+            <div>
+              <div  className="profile-information">
               <h3 ref="username">
                   {this.state.username ? this.state.username : "Username"}
               </h3>
-          </div>
-          <div  className="profile-information">
-              <span ref="email">
-                Email: {this.state.email}
-              </span>
-          </div>
-          <Link to="/profile-edit">Edit Profile</Link>
+              </div>
+              <div  className="profile-information">
+                  <span ref="email">
+                    Email: {this.state.email}
+                  </span>
+              </div>
+              <Link to="/profile-edit">Edit Profile</Link>
+            </div>
+            :
+            <div className="userNotLoggedIn-label">
+              Please log in to access this page.
+            </div> 
+            }
+        </AuthUserContext.Consumer>
         </div>
       </div>
     );

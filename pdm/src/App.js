@@ -11,8 +11,8 @@ class App extends Component {
   render() {
     return (
         <div className="App">
-        <Header />
-        <Navigation currentPage="home"/>
+          <Header />
+          <Navigation currentPage="home"/>
         </div>
     );
   }

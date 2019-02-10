@@ -39,8 +39,8 @@ export class Maps extends Component {
 
         let map, geocoder, formatted_address = null, address;
         let coordinates = {
-            lat: null,
-            lng: null
+            lat: 10,
+            lng: 10
         }
         
     }
@@ -78,7 +78,13 @@ export class Maps extends Component {
             lng: position.coords.longitude,
             address: ""
         }
-        this.props.callbackFromDriver(this.coordinates)
+
+        console.log(this.coordinates)
+        if(this.props.callbackFromDriver){
+            this.props.callbackFromDriver(this.coordinates)
+        }else if (this.props.callbackFromParent){
+            this.props.callbackFromParent(this.coordinates)
+        }
     }
 
     initMap() {
@@ -120,7 +126,7 @@ export class Maps extends Component {
                 }
             }
             .bind(this),
-            120
+            160
         );
 
         

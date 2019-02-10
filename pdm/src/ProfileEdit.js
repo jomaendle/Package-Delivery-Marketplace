@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Navigation from './components/Navigation';
 import Header from "./components/Header";
-import { withAuthentication } from "./Session";
+import { withAuthentication, AuthUserContext } from "./Session";
 import './App.css';
 
 
@@ -83,16 +83,28 @@ class ProfileEdit extends Component {
         <Header />
         <Navigation />
         <div className="main-content">
-            <span>
+          <AuthUserContext.Consumer>
+            {authUser =>
+              authUser ? 
+                <div>
+                  <span>
                 Username: 
-            </span>
-            <input type="text" ref="usernameInput" onChange={this.handleChangeUsername}></input>
-            <br/>
-            <span>
-                Email:
-            </span>
-            <input type="text" ref="emailInput" onChange={this.handleChangeEmail}></input>
-            <button onClick={this.updateUserData}>Save</button>
+                  </span>
+                  <input type="text" ref="usernameInput" onChange={this.handleChangeUsername}></input>
+                  <br/>
+                  <span>
+                      Email:
+                  </span>
+                  <input type="text" ref="emailInput" onChange={this.handleChangeEmail}></input>
+                  <button onClick={this.updateUserData}>Save</button>
+                </div>
+              : 
+              <div className="userNotLoggedIn-label">
+                  Please log in to access this page.
+              </div> 
+              }
+          </AuthUserContext.Consumer>
+            
         </div>
       </div>
     );

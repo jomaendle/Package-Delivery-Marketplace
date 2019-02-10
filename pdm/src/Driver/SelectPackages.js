@@ -3,7 +3,7 @@ import Navigation from '../components/Navigation';
 import Header from "../components/Header";
 import axios from 'axios';
 import '../App.css';
-import { withAuthentication } from "../Session";
+import { withAuthentication, AuthUserContext } from "../Session";
 require('dotenv').config();
 
 export class Package extends Component {
@@ -34,27 +34,11 @@ export class Package extends Component {
     }
 
     componentWillMount() {
-        if(this.props.location.state.selectedPackages){
+        if(this.props.location.state){
             this.setState({
                 selectedPackages: this.props.location.state.selectedPackages
             })
         }
-    }
-
-    componentDidMount() {
-
-       /* axios.post(`https://us-central1-studienarbeit.cloudfunctions.net/parcel`, {
-            action: "list",
-            parcel_id: ""
-        })
-          .then(res => {
-              console.log(res.data.list)
-            const packages = res.data;
-            if(res.data.list){
-                this.setState({ packages });
-            }
-          })
-       */
     }
 
     handlePackageClick = (e) => {
@@ -113,26 +97,40 @@ export class Package extends Component {
                 <Header />
                 <Navigation currentPage="delivery"/>
                 <div className="main-content">
-                    <h2>
-                     Select one or more packages to proceed.
-                    </h2>
-                    <div>
-                        { this.state.packages.length !== 0 ? this.state.packages.map((p, index) => {
-                            return(
-                                <div className="listed-packages" key={index} onMouseDown={this.handlePackageClick} >
-                                    <span className="packages-table">{p.parcel_id}</span>
-                                    <span className="packages-table">{p.parcel_status}</span>
-                                    <span className="packages-table">{p.title}</span>
-                                    <span className="packages-table">{p.time_created}</span>
-                                </div>
-                        )}):
-                        <div style={{marginBottom: "25px"}}>
-                            There are no packages available right now. Please check later again.
-                        </div>}
+                <AuthUserContext.Consumer>
+                    {authUser =>
+                        authUser ? 
+                        <div>
+                            <h2>
+                            Select one or more packages to proceed.
+                            </h2>
+                            <div>
+                                { this.state.packages.length !== 0 ? this.state.packages.map((p, index) => {
+                                    return(
+                                        <div className="listed-packages" key={index} onMouseDown={this.handlePackageClick} >
+                                            <span className="packages-table">{p.parcel_id}</span>
+                                            <span className="packages-table">{p.parcel_status}</span>
+                                            <span className="packages-table">{p.title}</span>
+                                            <span className="packages-table">{p.time_created}</span>
+                                        </div>
+                                )}):
+                                <div style={{marginBottom: "25px"}}>
+                                    There are no packages available right now. Please check later again.
+                                </div>}
 
-                    </div>
-                    <button className="buttons" onMouseDown={this.ReturnToPreviousPage}>Back</button>
-                    <button className="buttons cta-button" onMouseDown={this.ContinueToConfirmPage} style={{float: "right"}}>Continue</button>
+                            </div>
+                            <button className="buttons" onMouseDown={this.ReturnToPreviousPage}>Back</button>
+                            <button className="buttons cta-button" onMouseDown={this.ContinueToConfirmPage} style={{float: "right"}}>Continue</button>
+                        </div>
+                        :
+                        <div>
+                            <div className="userNotLoggedIn-label">
+                                    Please log in to access this page.
+                            </div>  
+                        </div>
+                        }
+                </AuthUserContext.Consumer>
+                    
                 </div>
             </div>
         );

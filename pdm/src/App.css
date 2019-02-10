@@ -418,6 +418,15 @@ Become driver page
   padding-right: 15px;
 }
 
+.userNotLoggedIn-label {
+  margin-top: 22px;
+  border-left: solid 4px rgb(222, 112, 104);
+  padding: 1em;
+  height: 26px;
+  font-weight: 600;
+  padding-top: 19px;
+ }
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

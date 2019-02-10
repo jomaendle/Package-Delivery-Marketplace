@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import Navigation from './components/Navigation';
 import Header from "./components/Header";
 import './App.css';
-//import ConfirmImage from "/assets/distance.png"
-import { withAuthentication } from "./Session";
+import { withAuthentication, AuthUserContext } from "./Session";
 
 export class FinalPage extends Component {
 
@@ -18,11 +17,13 @@ export class FinalPage extends Component {
     }
 
     componentWillMount() {
-        this.setState({
-            userType: this.props.location.state.userType,
-            package: this.props.location.state.package,
-            response: this.props.location.state.response ? this.props.location.state.response : ""
-        })
+        if(this.props.location.state){
+            this.setState({
+                userType: this.props.location.state.userType,
+                package: this.props.location.state.package,
+                response: this.props.location.state.response ? this.props.location.state.response : ""
+            })
+        }
     }
 
     render() {
@@ -52,10 +53,20 @@ export class FinalPage extends Component {
                 <Header />
                 <Navigation/>
                 <div className="main-content">
-                <div style={{paddingTop: "24px", textAlign: "center"}}>
-                    <img style={{width: "150px"}} alt="Shows a route between two points" src="/assets/distance.png"/>
-                    {data}
-                </div>
+                <AuthUserContext.Consumer>
+                {authUser =>
+                    authUser ? 
+                    <div style={{paddingTop: "24px", textAlign: "center"}}>
+                        <img style={{width: "150px"}} alt="Shows a route between two points" src="/assets/distance.png"/>
+                        {data}
+                    </div>
+                    : 
+                    <div className="userNotLoggedIn-label">
+                        Please log in to access this page.
+                    </div> 
+                    }
+                </AuthUserContext.Consumer>
+                   
                 </div>
             </div>
         );

@@ -56,10 +56,14 @@ import { AuthUserContext } from "../Session";
       <div>
         <ul id="navigation-bar">
           <li>
-            <Link className="navigation-links" to={"/"}> Home </Link>
+          {this.state.currentPage==="home" 
+            ?  <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/"}> Home </Link>
+            :  <Link className="navigation-links" to={"/"}> Home </Link>}
           </li>
           <li>
-            <Link className="navigation-links" to={"/login"}> Sign In </Link>
+          {this.state.currentPage==="login" 
+            ?  <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/login"}> Sign In </Link>
+            :  <Link className="navigation-links" to={"/login"}> Sign In </Link>}
           </li>
         </ul>
     

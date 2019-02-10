@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Navigation from '../components/Navigation';
 import Header from "../components/Header";
 import '../App.css';
-import { withAuthentication } from "../Session";
+import { withAuthentication, AuthUserContext } from "../Session";
 require('dotenv').config();
 
 export class ConfirmationPage extends Component {
@@ -23,11 +23,13 @@ export class ConfirmationPage extends Component {
     }
 
     componentWillMount() {
-        this.setState({
-            selectedPackages: this.props.location.state.selectedPackages,
-            timeAvailable: this.props.location.state.prevState.timeAvailable,
-            currentLatLng: this.props.location.state.prevState.currentLatLng
-        })
+        if(this.props.location.state){
+            this.setState({
+                selectedPackages: this.props.location.state.selectedPackages,
+                timeAvailable: this.props.location.state.prevState.timeAvailable,
+                currentLatLng: this.props.location.state.prevState.currentLatLng
+            })
+        }
     }
 
     ReturnToPreviousPage() {
@@ -56,40 +58,54 @@ export class ConfirmationPage extends Component {
                     <Header />
                     <Navigation currentPage="delivery"/>
                     <div className="main-content">
-                        <h2>
-                            Congrats! Check your information and submit 
-                        </h2>
+                    <AuthUserContext.Consumer>
+                    {authUser =>
+                        authUser ? 
                         <div>
-                            <p style={{marginBottom: "45px"}}>
-                                <span style={{fontWeight: 600}}>
-                                    Your available time level is:
-                                </span> {this.state.timeAvailable}
-                            </p>
-                            <p  style={{marginBottom: "45px"}}> 
-                                <span style={{fontWeight: 600}}>
-                                    Your current position is:
-                                </span> {this.state.currentLatLng.address} <br/>
-                                {this.state.currentLatLng.lat.toFixed(4)} , {this.state.currentLatLng.lng.toFixed(4)}
-                            </p>
-
-                            <p>
-                                <span style={{fontWeight: 600}}>
-                                    You selected the following packages to deliver:
-                                </span>
-                            </p>
-                            { this.state.selectedPackages.map((p, index) => {
-                                return(
-                                    <div className="listed-packages" key={index} onMouseDown={this.handlePackageClick} >
-                                        <span className="packages-table">{p.parcel_id}</span>
-                                        <span className="packages-table">{p.parcel_status}</span>
-                                        <span className="packages-table">{p.title}</span>
-                                        <span className="packages-table">{p.time_created}</span>
-                                    </div>
-                            )})}
-    
+                            <h2>
+                            Congrats! Check your information and submit 
+                            </h2>
+                            <div>
+                                <p style={{marginBottom: "45px"}}>
+                                    <span style={{fontWeight: 600}}>
+                                        Your available time level is:
+                                    </span> {this.state.timeAvailable}
+                                </p>
+                                <p  style={{marginBottom: "45px"}}> 
+                                    <span style={{fontWeight: 600}}>
+                                        Your current position is:
+                                    </span> {this.state.currentLatLng.address} <br/>
+                                    {this.state.currentLatLng.lat.toFixed(4)} , {this.state.currentLatLng.lng.toFixed(4)}
+                                </p>
+        
+                                <p>
+                                    <span style={{fontWeight: 600}}>
+                                        You selected the following packages to deliver:
+                                    </span>
+                                </p>
+                                { this.state.selectedPackages.map((p, index) => {
+                                    return(
+                                        <div className="listed-packages" key={index} onMouseDown={this.handlePackageClick} >
+                                            <span className="packages-table">{p.parcel_id}</span>
+                                            <span className="packages-table">{p.parcel_status}</span>
+                                            <span className="packages-table">{p.title}</span>
+                                            <span className="packages-table">{p.time_created}</span>
+                                        </div>
+                                )})}
+        
+                            </div>
+                            <button className="buttons" onMouseDown={this.ReturnToPreviousPage}>Back</button>
+                            <button className="buttons cta-button" onMouseDown={this.continueToFinalPage} style={{float: "right"}}>Confirm</button>
                         </div>
-                        <button className="buttons" onMouseDown={this.ReturnToPreviousPage}>Back</button>
-                        <button className="buttons cta-button" onMouseDown={this.continueToFinalPage} style={{float: "right"}}>Confirm</button>
+                        : 
+                        <div>
+                            <div className="userNotLoggedIn-label">
+                                    Please log in to access this page.
+                            </div>
+                        </div>
+                        }
+                    </AuthUserContext.Consumer>
+                       
                     </div>
                 </div>
             );
