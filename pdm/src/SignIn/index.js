@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import Navigation from "../components/Navigation";
 import { SignUpLink } from '../SignUp';
 import { withFirebase } from '../Firebase';
+import firebase from "firebase"
 
 const SignInPage = () => (
   <div className="App">
@@ -35,6 +36,15 @@ class SignInFormBase extends Component {
       .doSignInWithEmailAndPassword(email, password)
       .then(() => {
         this.setState({ ...INITIAL_STATE });
+
+        firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
+          // Send token to your backend via HTTPS
+          console.log(idToken)
+          // ...
+        }).catch(function(error) {
+          // Handle error
+        });
+
         this.props.history.push("/profile");
       })
       .catch(error => {
@@ -54,7 +64,7 @@ class SignInFormBase extends Component {
     const isInvalid = password === '' || email === '';
 
     return (
-        <div>
+        <div style={{marginTop: "65px"}}>
             <h1>Sign In</h1>
             <form onSubmit={this.onSubmit}>
             <input

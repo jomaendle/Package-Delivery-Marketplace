@@ -18,10 +18,10 @@ export class Maps extends Component {
             destination: {
                 lat: null,
                 lng: null
-            }, 
+            },
             googleAPIKey: process.env.REACT_APP_GOOLE_API_KEY,
             currentLatLng: {
-                lat:  null,
+                lat: null,
                 lng: null
             },
             directionsService: null,
@@ -29,135 +29,216 @@ export class Maps extends Component {
             place: null,
             mapPositionArray: [],
             allowMultipleClicks: true,
-            showAutoCompleteBar: true
+            showAutoCompleteBar: true,
+            duration: "",
+            distance: "",
+            scriptLoaded: false,
+            coordinates: {
+                lat: 48.7823200,
+                lng: 9.1770200
+            }
         }
-       
+
         this.initAutocomplete = this.initAutocomplete.bind(this);
         this.initMap = this.initMap.bind(this);
         this.setGeoLocation = this.setGeoLocation.bind(this);
+        this.calculateAndDisplayRoute = this.calculateAndDisplayRoute.bind(this);
 
-
-        let map, geocoder, formatted_address = null, address;
-        let coordinates = {
-            lat: 10,
-            lng: 10
-        }
-        
+        let map, geocoder;
     }
 
     componentWillMount() {
-        this.getGeoLocation();
-        if(this.props.allowMultipleClicks === "false"){
+        //this.getGeoLocation();
+        if (this.props.allowMultipleClicks === "false") {
             this.setState({
                 allowMultipleClicks: false
             })
         }
-        if(this.props.showAutoCompleteBar === "false"){
+        if (this.props.showAutoCompleteBar === "false") {
             this.setState({
                 showAutoCompleteBar: false
             })
         }
+
+        if (this.props.startLocation) {
+            this.setState({
+                startLocation: this.props.startLocation,
+                destination: this.props.destination
+            })
+        }
     }
 
-    handleScriptCreate() {
-        this.getGeoLocation();
+    componentWillUnmount() {
     }
 
+    componentDidMount() {
+        this._isMounted = true;
+        if (this.props.calculateRoute === "true") {
+            setTimeout(
+                function () {
+                    this.calculateAndDisplayRoute();
+                }.bind(this), 250
+            )
+        }
+    }
 
     getGeoLocation() {
-        if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(function (position) {
+            console.log("Position detection allowed.");
             (navigator.geolocation.getCurrentPosition(this.setGeoLocation))
-        } else {
-           console.log("Failed fetching current GPS coordinates.");
+        }.bind(this),
+            function (error) {
+                if (error.code === error.PERMISSION_DENIED){
+                    console.log("Position decetion denied");
+                    this.setState({
+                        coordinates: {
+                            lat: 48.7823200,
+                            lng: 9.1770200
+                        }
+                    })
+                }
+            }.bind(this));
+
+        if (this.props.callbackFromDriver) {
+            this.props.callbackFromDriver(this.state.coordinates)
+        } else if (this.props.callbackFromParent) {
+            this.props.callbackFromParent(this.state.coordinates)
         }
     }
 
     setGeoLocation(position) {
-        this.coordinates = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-            address: ""
-        }
+        this.setState({
+            coordinates: {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            }
+        });
+        this.map.setCenter({lat:this.state.coordinates.lat,lng:this.state.coordinates.lng})
+        
 
-        console.log(this.coordinates)
-        if(this.props.callbackFromDriver){
-            this.props.callbackFromDriver(this.coordinates)
-        }else if (this.props.callbackFromParent){
-            this.props.callbackFromParent(this.coordinates)
-        }
+        //Create marker for the current location
+        /*if (!this.props.calculateRoute) {
+            this.createNewInfoWindow(
+                this.state.coordinates.lat,
+                this.state.coordinates.lng,
+                this.geocoder
+            )
+        }*/
     }
 
     initMap() {
-        setTimeout(
-            function() {
-                this.geocoder = new google.maps.Geocoder();
+        this.geocoder = new google.maps.Geocoder();
 
-                //Create the map component
-                this.map = new google.maps.Map(document.getElementById('map'), {
-                    center: {lat: this.coordinates.lat, lng: this.coordinates.lng}, 
-                    zoom: 10
-                })
+        //this.getGeoLocation();
+        //Create the map component
+        this.map = new google.maps.Map(document.getElementById('map'), {
+            center: { 
+                lat: this.state.coordinates.lat,
+                lng: this.state.coordinates.lng },
+            zoom: 10
+        })
 
-                // Add Event listener to map
-                // Create new Info Window and Marker for each clicked location
-                google.maps.event.addListener(this.map, 'click', function(event) {
-                    if(this.state.allowMultipleClicks){
-                        this.addInfoWindowForLocation(event, this.geocoder);
-                    }
-                }.bind(this));
-
-                this.setState({
-                    directionsService: new google.maps.DirectionsService(),
-                    directionsDisplay: new google.maps.DirectionsRenderer({
-                        map: this.map
-                    })
-                })
-
-                //Create marker for the current location
-                this.createNewInfoWindow(
-                    this.coordinates.lat,
-                    this.coordinates.lng,
-                    this.geocoder
-                )
-
-                //Initialize the autocomplete text field
-                if(this.state.showAutoCompleteBar){
-                    this.initAutocomplete(this.geocoder)
-                }
+        // Add Event listener to map
+        // Create new Info Window and Marker for each clicked location
+        google.maps.event.addListener(this.map, 'click', function (event) {
+            console.log(this.state)
+            if (this.state.allowMultipleClicks) {
+                this.addInfoWindowForLocation(event, this.geocoder);
             }
-            .bind(this),
-            160
-        );
+        }.bind(this));
 
-        
+        this.setState({
+            directionsService: new google.maps.DirectionsService(),
+            directionsDisplay: new google.maps.DirectionsRenderer({
+                map: this.map
+            })
+        })
+
+        //Initialize the autocomplete text field
+        if (this.state.showAutoCompleteBar) {
+            this.initAutocomplete(this.geocoder)
+        }
+
+    }
+
+    calculateAndDisplayRoute() {
+        if (this.state.directionsService && this.state.directionsDisplay) {
+            this.state.directionsDisplay.setMap(null);
+            this.state.directionsDisplay.setMap(this.map);
+
+
+            this.state.directionsService.route({
+                origin: this.state.startLocation,
+                destination: this.state.destination,
+                travelMode: google.maps.TravelMode.DRIVING,
+                provideRouteAlternatives: true
+            }, function (response, status) {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    this.state.directionsDisplay.setDirections(response);
+                    //let durLabel = document.getElementById("duration-label");
+                    //let disLabel = document.getElementById("distance-label");
+
+
+                    let totalDuration = 0;
+                    let totalDistance = 0;
+
+                    let dirRoutes = this.state.directionsDisplay.directions;
+                    for (let i = 0; i < dirRoutes.routes[0].legs.length; i++) {
+                        totalDistance += dirRoutes.routes[0].legs[i].distance.value;
+                        totalDuration += dirRoutes.routes[0].legs[i].duration.value;
+                    }
+
+                    let roundedTotalDistance = (totalDistance / 1000);
+                    roundedTotalDistance = roundedTotalDistance.toFixed(1);
+
+                    var date = new Date(null);
+                    date.setSeconds(totalDuration); // specify value for SECONDS here
+                    var resultTime = 0;
+                    if (totalDuration < 3600) {
+                        resultTime = date.toISOString().substr(14, 5);
+                    } else {
+                        resultTime = date.toISOString().substr(11, 8);
+                    }
+
+                    this.setState({
+                        duration: resultTime,
+                        distance: roundedTotalDistance + " km"
+                    })
+                    //durLabel.innerHTML = "Duration: " + resultTime;
+                    //disLabel.innerHTML = "Distance: " + roundedTotalDistance + " km";
+                } else {
+                    window.alert('Directions request failed due to ' + status);
+                }
+            }.bind(this));
+        }
     }
 
     /**
      * Initialize Autocomplete input
      */
-    initAutocomplete(geocoder){
-        if(this.map){
+    initAutocomplete(geocoder) {
+        if (this.map) {
             let input = document.getElementById('searchTextField');
-            let marker =  new google.maps.Marker({
+            let marker = new google.maps.Marker({
                 map: this.map
             })
-    
+
             let autocomplete = new google.maps.places.Autocomplete(input);
             autocomplete.bindTo('bounds', this.map);
-    
+
             google.maps.event.addListener(autocomplete, 'place_changed', function () {
                 this.place = autocomplete.getPlace();
-    
+
                 var newlatlong = new google.maps.LatLng(this.place.geometry.location.lat(), this.place.geometry.location.lng());
                 this.map.setCenter(newlatlong);
-    
+
                 this.checkIfInfoWindowIsReached();
                 this.createNewInfoWindow(
                     this.place.geometry.location.lat(),
                     this.place.geometry.location.lng(),
                     geocoder
                 )
-                
+
                 marker.setPosition(newlatlong);
                 this.map.setZoom(12);
             }.bind(this));
@@ -172,12 +253,12 @@ export class Maps extends Component {
         var marker;
 
         //Check, whether an Info Window already exists for the current location
-        for(let i =0; i<this.state.mapPositionArray.length; i++){
-            if(this.state.mapPositionArray[i].lat === event.latLng.lat() && this.state.mapPositionArray[i].lon === event.latLng.lng()){
+        for (let i = 0; i < this.state.mapPositionArray.length; i++) {
+            if (this.state.mapPositionArray[i].lat === event.latLng.lat() && this.state.mapPositionArray[i].lon === event.latLng.lng()) {
                 infoWindow = this.state.mapPositionArray[i].infoWindow;
                 marker = this.state.mapPositionArray[i].marker;
             }
-            if(this.state.mapPositionArray[i].infoWindow){
+            if (this.state.mapPositionArray[i].infoWindow) {
                 this.state.mapPositionArray[i].infoWindow.close();
             }
         }
@@ -185,7 +266,7 @@ export class Maps extends Component {
         this.checkIfInfoWindowIsReached();
 
         // If no Info Window exists yet, create a one
-        if(!infoWindow){
+        if (!infoWindow) {
             this.createNewInfoWindow(
                 event.latLng.lat(),
                 event.latLng.lng(),
@@ -197,8 +278,8 @@ export class Maps extends Component {
     }
 
     checkIfInfoWindowIsReached() {
-        if(this.state.mapPositionArray.length > 1) {
-            for(let i =0; i<this.state.mapPositionArray.length; i++){
+        if (this.state.mapPositionArray.length > 1) {
+            for (let i = 0; i < this.state.mapPositionArray.length; i++) {
                 this.state.mapPositionArray[i].marker.setMap(null);
             }
             this.setState({
@@ -208,10 +289,11 @@ export class Maps extends Component {
     }
 
     createNewInfoWindow(lat, lng, geocoder) {
+        console.log("New Marker")
         let infoWindow, marker;
-        var latlng = {lat: lat, lng: lng};
+        var latlng = { lat: lat, lng: lng };
         let mapPosition = {
-            lat:lat,
+            lat: lat,
             lon: lng,
             infoWindow: new google.maps.InfoWindow(),
             marker: new google.maps.Marker({
@@ -235,21 +317,21 @@ export class Maps extends Component {
         Get address from coordinates
     */
     geocodeLatLng(geocoder, map, infowindow, coordinates, marker) {
-        var latlng = {lat: coordinates.lat, lng: coordinates.lng};
-        geocoder.geocode({'location': latlng}, function(results, status) {
-        if (status === 'OK') {
-            if (results[0]) {
-                marker.addListener("click", function(){
-                    infowindow.open(map, marker);
-                })
+        var latlng = { lat: coordinates.lat, lng: coordinates.lng };
+        geocoder.geocode({ 'location': latlng }, function (results, status) {
+            if (status === 'OK') {
+                if (results[0]) {
+                    marker.addListener("click", function () {
+                        infowindow.open(map, marker);
+                    })
 
-                this.formatted_address = results[0].formatted_address;
-                infowindow.setContent(results[0].formatted_address);
-                infowindow.open(map, marker);
-            } else {
-                window.alert('No results found');
+                    this.formatted_address = results[0].formatted_address;
+                    infowindow.setContent(results[0].formatted_address);
+                    infowindow.open(map, marker);
+                } else {
+                    window.alert('No results found');
+                }
             }
-            } 
             else {
                 window.alert('Geocoder failed due to: ' + status);
             }
@@ -293,9 +375,20 @@ export class Maps extends Component {
 
         return (
             <div>
-                <Script url={googleMapURL}    onCreate={this.handleScriptCreate.bind(this)} onLoad={this.initMap}/>   
-                { this.state.showAutoCompleteBar ? <input type="text" id="searchTextField"/> : ""}
-                <div id="map"></div>   
+                {this.state.showAutoCompleteBar ? <input type="text" id="searchTextField" /> : ""}
+                <div id="map"></div>
+                <div>
+                    {this.props.calculateRoute ?
+                        <div>
+                            <p ref={this.distanceLabel}>
+                                Distance: {this.state.distance}
+                            </p>
+                            <p ref={this.durationLabel}>
+                                Duration: {this.state.duration}
+                            </p>
+                        </div> : ""}
+                </div>
+                <Script url={googleMapURL} onLoad={this.initMap.bind(this)} />
             </div>
         );
     }

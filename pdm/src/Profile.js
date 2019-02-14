@@ -17,6 +17,9 @@ class Profile extends Component {
       email: "",
       phototURL: null
     };
+
+    this.usernameLabel = React.createRef();
+    this.emailLabel = React.createRef();
   }
 
   getUserData() {
@@ -27,20 +30,10 @@ class Profile extends Component {
         username: user.displayName,
         email: user.email,
         photoURL: user.photoURL
-      },
-      this.showUserData);
+      });
     }
   }
 
-  showUserData() {
-    let usernameLabel = this.refs.username;
-    let emailLabel = this.refs.email;
-
-    if(this.state.userID != null){
-      usernameLabel.value = "Username: " + this.state.username;
-      emailLabel.value = "Email: " + this.state.email;
-    }
-  }
 
   componentDidMount() {
     this.getUserData();
@@ -57,12 +50,12 @@ class Profile extends Component {
             authUser ? 
             <div>
               <div  className="profile-information">
-              <h3 ref="username">
+              <h3 ref={this.usernameLabel}>
                   {this.state.username ? this.state.username : "Username"}
               </h3>
               </div>
               <div  className="profile-information">
-                  <span ref="email">
+                  <span ref={this.emailLabel} >
                     Email: {this.state.email}
                   </span>
               </div>

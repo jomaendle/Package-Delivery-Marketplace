@@ -11,6 +11,7 @@ import Driver from "./Driver/Driver"
 import ConfirmPage from "./Driver/ConfirmPage"
 import ProfileEdit from "./ProfileEdit";
 import FinalPage from "./FinalPage";
+import DriverRoute from "./Driver/DriverRoute"
 import MyPackages from "./PackageInsert/MyPackages"
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import * as serviceWorker from './serviceWorker';
@@ -31,6 +32,7 @@ ReactDOM.render(
                 <Route exact path="/driver-select-packages" component={SelectPackages}></Route>
                 <Route exact path="/driver" component={Driver}></Route>
                 <Route exact path="/driver-confirm" component={ConfirmPage}></Route>
+                <Route exact path="/driver-route" component={DriverRoute}></Route>
                 <Route exact path="/final" component={FinalPage}></Route>
             </Switch>
         </BrowserRouter>

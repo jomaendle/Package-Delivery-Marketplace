@@ -31,14 +31,25 @@ export class Package extends Component {
         this.handlePackageClick = this.handlePackageClick.bind(this);
         this.ReturnToPreviousPage = this.ReturnToPreviousPage.bind(this);
         this.ContinueToConfirmPage = this.ContinueToConfirmPage.bind(this);
+
+        let selectedPackages = [];
     }
 
     componentWillMount() {
-        if(this.props.location.state){
-            this.setState({
-                selectedPackages: this.props.location.state.selectedPackages
-            })
-        }
+        // API Call to fetch the parcels which fit for the driver
+
+        axios.get('https://us-central1-studienarbeit.cloudfunctions.net/parceldriver', {
+            params: {
+                driver_position: 'test',
+                radius: ""
+            }
+          }).then(response => {
+            console.log(response);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+
     }
 
     handlePackageClick = (e) => {
@@ -52,7 +63,21 @@ export class Package extends Component {
         });
 
         let selectedPackage;
-        if(!this.state.selectedPackages.includes(list[0].innerHTML) && list !== []){
+        if(this.state.selectedPackages){
+            if(!this.state.selectedPackages.includes(list[0].innerHTML) && list !== []){
+                //Create new package object to pass it to confirmation page
+                selectedPackage = {
+                    parcel_id: list[0],
+                    parcel_status: list[1], 
+                    title: list[2],
+                    time_created: list[3]
+                }
+    
+                //Add new package to currently selected packages.
+                this.state.selectedPackages.push(selectedPackage);
+                e.target.className = "listed-packages-clicked";
+            }
+        }else{
             //Create new package object to pass it to confirmation page
             selectedPackage = {
                 parcel_id: list[0],
@@ -60,7 +85,7 @@ export class Package extends Component {
                 title: list[2],
                 time_created: list[3]
             }
-            
+
             //Add new package to currently selected packages.
             this.state.selectedPackages.push(selectedPackage);
             e.target.className = "listed-packages-clicked";

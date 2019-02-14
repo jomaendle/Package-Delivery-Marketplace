@@ -63,8 +63,6 @@ export class Driver extends Component {
                         {authUser =>
                             authUser ? 
                             <div>
-                                <Header />
-                                <Navigation currentPage="delivery" />
                                 <div>
                                     <h2>
                                         Want to deliver packages? 

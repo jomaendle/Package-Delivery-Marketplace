@@ -43,7 +43,7 @@ export class ConfirmationPage extends Component {
 
     continueToFinalPage() {
         this.props.history.push({
-            pathname: '/final',
+            pathname: '/driver-route',
             state: { 
                 userType: "driver",
             }

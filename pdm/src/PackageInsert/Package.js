@@ -49,7 +49,7 @@ export class Package extends Component {
     componentDidMount() {
         this.setState({
             priority: "Priority: Very High",
-            price: "Price: " + this.priceRef.current.value + "€"
+            price: "Price: 50€" 
         })
         
     }
@@ -104,12 +104,12 @@ export class Package extends Component {
             })
             .then(response => { 
                 res = response;
-                console.log(startLocation, destination)
+                //console.log(startLocation, destination)
                 console.log(response)
             })
             .catch(error => {
                 console.log(startLocation, destination)
-                console.log(error.response)
+                console.log(error)
             });
 
             let currentPackage = {

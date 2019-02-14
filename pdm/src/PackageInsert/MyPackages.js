@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Navigation from '../components/Navigation';
 import Header from "../components/Header";
 import '../App.css';
+import axios from 'axios';
 import { Link } from "react-router-dom";
 import { withAuthentication, AuthUserContext } from "../Session";
 
@@ -30,14 +31,26 @@ export class MyPackages extends Component {
         this.removePackage = this.removePackage.bind(this);
     }
 
+    componentWillMount() {
+        // Fetch all packages from current user
+        /*axios.get('/api', {
+            params: {
+              foo: 'bar'
+            }
+          });
+          */
+    }
+
     removePackage(e, p_id) {
         if(this.state.packages.length > 0) {
             e.preventDefault();
-            e.target.parentElement.classList.add("hidden");
-            setTimeout(function(){ 
-                let filteredArray = this.state.packages.filter(item => item.parcel_id !== p_id)
-                this.setState({packages: filteredArray}); 
-            }.bind(this), 1150);
+            if(e.target.parentElement.id !== "my-packages-container"){
+                e.target.parentElement.classList.add("hidden");
+                setTimeout(function(){ 
+                    let filteredArray = this.state.packages.filter(item => item.parcel_id !== p_id)
+                    this.setState({packages: filteredArray}); 
+                }.bind(this), 1150);
+            }
             
         }
     }
@@ -50,7 +63,7 @@ export class MyPackages extends Component {
                 <Navigation currentPage="package"/>
                 <div className="main-content">
                 <AuthUserContext.Consumer>
-                    {authUser =>
+                    {authUser => 
                         authUser ? 
                         <div id="my-packages-container">
                             <h2>
@@ -77,7 +90,9 @@ export class MyPackages extends Component {
                                             type="image" />
                                         </div>
                             )})}
+                        {console.log(authUser.uid)}
                         </div>
+                        
                         : 
                         <div className="userNotLoggedIn-label">
                             Please log in to access this page.
