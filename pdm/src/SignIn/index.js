@@ -37,15 +37,22 @@ class SignInFormBase extends Component {
       .then(() => {
         this.setState({ ...INITIAL_STATE });
 
+        let token;
         firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
           // Send token to your backend via HTTPS
+          token = idToken;
           console.log(idToken)
           // ...
         }).catch(function(error) {
           // Handle error
         });
 
-        this.props.history.push("/profile");
+        this.props.history.push({
+          pathname: '/',
+          state: { 
+              userToken: token
+          }
+       })
       })
       .catch(error => {
         this.setState({ error });

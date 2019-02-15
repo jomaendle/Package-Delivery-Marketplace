@@ -81,8 +81,4 @@ import { AuthUserContext } from "../Session";
   }
 }
 
-let currentPage;
-
-
-
 export default Navigation;

@@ -21,7 +21,8 @@ export class Driver extends Component {
                 lat: 48.558917, 
                 lng: 9.211809,
             },
-            time: 0
+            time: 0,
+            userToken: null
         }
 
         this.pickedUpButton = React.createRef();
@@ -30,6 +31,11 @@ export class Driver extends Component {
 
     componentWillMount() {
         //Get start location and destination
+        if(this.props.location.state){
+            this.setState({
+              userToken: this.props.location.state.userToken
+            })
+        }
     }
 
     componentDidMount(){

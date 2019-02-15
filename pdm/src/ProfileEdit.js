@@ -19,12 +19,14 @@ class ProfileEdit extends Component {
     this.handleChangeUsername = this.handleChangeUsername.bind(this);
     this.handleChangeEmail = this.handleChangeEmail.bind(this);
     this.updateUserData = this.updateUserData.bind(this);
+
+    this.usernameInput = React.createRef();
+    this.emailInput = React.createRef();
   }
 
   getUserData() {
     var user = this.props.firebase.auth.currentUser;
     if (user != null) {
-        console.log(user.uid)
         this.setState({
             userID: user.uid,
             username: user.displayName,
@@ -56,10 +58,11 @@ class ProfileEdit extends Component {
   }
 
   showUserData() {
-    let usernameInput = this.refs.usernameInput;
-    let emailInput = this.refs.emailInput;
+    let usernameInput = this.usernameInput.current;
+    let emailInput = this.emailInput.current;
 
-    if(this.state.userID != null){
+    console.log(usernameInput)
+    if(this.state.userID != null ){
         usernameInput.value = this.state.username;
         emailInput.value = this.state.email;
     }
@@ -90,12 +93,12 @@ class ProfileEdit extends Component {
                   <span>
                 Username: 
                   </span>
-                  <input type="text" ref="usernameInput" onChange={this.handleChangeUsername}></input>
+                  <input type="text" ref={this.usernameInput} onChange={this.handleChangeUsername}></input>
                   <br/>
                   <span>
                       Email:
                   </span>
-                  <input type="text" ref="emailInput" onChange={this.handleChangeEmail}></input>
+                  <input type="text" ref={this.emailInput} onChange={this.handleChangeEmail}></input>
                   <button onClick={this.updateUserData}>Save</button>
                 </div>
               : 

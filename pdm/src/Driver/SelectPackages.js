@@ -26,7 +26,8 @@ export class Package extends Component {
                     time_created: "Tue, 22 Jan 2019 08:22:10 GMT"
                 }
             ],
-            selectedPackages: []
+            selectedPackages: [],
+            userToken: null
         }
         this.handlePackageClick = this.handlePackageClick.bind(this);
         this.ReturnToPreviousPage = this.ReturnToPreviousPage.bind(this);
@@ -37,7 +38,6 @@ export class Package extends Component {
 
     componentWillMount() {
         // API Call to fetch the parcels which fit for the driver
-
         axios.get('https://us-central1-studienarbeit.cloudfunctions.net/parceldriver', {
             params: {
                 driver_position: 'test',
@@ -50,6 +50,11 @@ export class Package extends Component {
             console.log(error);
           });
 
+          if(this.props.location.state){
+            this.setState({
+              userToken: this.props.location.state.userToken
+            })
+          }
     }
 
     handlePackageClick = (e) => {

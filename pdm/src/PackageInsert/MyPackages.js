@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Navigation from '../components/Navigation';
 import Header from "../components/Header";
 import '../App.css';
-import axios from 'axios';
 import { Link } from "react-router-dom";
 import { withAuthentication, AuthUserContext } from "../Session";
 
@@ -25,20 +24,19 @@ export class MyPackages extends Component {
                     title: "P2",
                     time_created: "Tue, 22 Jan 2019 08:22:10 GMT"
                 }
-            ]
+            ],
+            userToken: null
         }
 
         this.removePackage = this.removePackage.bind(this);
     }
 
     componentWillMount() {
-        // Fetch all packages from current user
-        /*axios.get('/api', {
-            params: {
-              foo: 'bar'
-            }
-          });
-          */
+        if(this.props.location.state){
+            this.setState({
+              userToken: this.props.location.state.userToken
+            })
+        }
     }
 
     removePackage(e, p_id) {
@@ -90,7 +88,6 @@ export class MyPackages extends Component {
                                             type="image" />
                                         </div>
                             )})}
-                        {console.log(authUser.uid)}
                         </div>
                         
                         : 

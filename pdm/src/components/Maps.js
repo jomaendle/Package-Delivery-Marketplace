@@ -41,7 +41,6 @@ export class Maps extends Component {
 
         this.initAutocomplete = this.initAutocomplete.bind(this);
         this.initMap = this.initMap.bind(this);
-        this.setGeoLocation = this.setGeoLocation.bind(this);
         this.calculateAndDisplayRoute = this.calculateAndDisplayRoute.bind(this);
 
         let map, geocoder;
@@ -68,8 +67,6 @@ export class Maps extends Component {
         }
     }
 
-    componentWillUnmount() {
-    }
 
     componentDidMount() {
         this._isMounted = true;
@@ -82,6 +79,7 @@ export class Maps extends Component {
         }
     }
 
+    /*
     getGeoLocation() {
         navigator.geolocation.watchPosition(function (position) {
             console.log("Position detection allowed.");
@@ -124,7 +122,7 @@ export class Maps extends Component {
                 this.geocoder
             )
         }*/
-    }
+    //}
 
     initMap() {
         this.geocoder = new google.maps.Geocoder();
@@ -141,7 +139,6 @@ export class Maps extends Component {
         // Add Event listener to map
         // Create new Info Window and Marker for each clicked location
         google.maps.event.addListener(this.map, 'click', function (event) {
-            console.log(this.state)
             if (this.state.allowMultipleClicks) {
                 this.addInfoWindowForLocation(event, this.geocoder);
             }
@@ -165,7 +162,6 @@ export class Maps extends Component {
         if (this.state.directionsService && this.state.directionsDisplay) {
             this.state.directionsDisplay.setMap(null);
             this.state.directionsDisplay.setMap(this.map);
-
 
             this.state.directionsService.route({
                 origin: this.state.startLocation,
@@ -239,6 +235,17 @@ export class Maps extends Component {
                     geocoder
                 )
 
+                if (this.props.callbackFromDriver) {
+                    this.props.callbackFromDriver(
+                        {
+                            lat: this.place.geometry.location.lat(),
+                            lng: this.place.geometry.location.lng()
+                        }
+                    )
+                } else if (this.props.callbackFromParent) {
+                    this.props.callbackFromParent(this.state.coordinates)
+                }
+
                 marker.setPosition(newlatlong);
                 this.map.setZoom(12);
             }.bind(this));
@@ -289,7 +296,6 @@ export class Maps extends Component {
     }
 
     createNewInfoWindow(lat, lng, geocoder) {
-        console.log("New Marker")
         let infoWindow, marker;
         var latlng = { lat: lat, lng: lng };
         let mapPosition = {
