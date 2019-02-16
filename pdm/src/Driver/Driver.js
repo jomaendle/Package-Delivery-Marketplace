@@ -53,13 +53,17 @@ export class Driver extends Component {
   }
 
   handleSubmit = e => {
-    this.props.history.push({
-      pathname: "/driver-select-packages",
-      state: {
-        currentLatLng: this.state.currentLatLng,
-        timeAvailable: this.state.time
-      }
-    });
+      if(this.state.currentLatLng.lat === 0 && this.state.currentLatLng.lng === 0){
+          window.alert("Please select your location first");
+        }else{
+        this.props.history.push({
+            pathname: "/driver-select-packages",
+            state: {
+            currentLatLng: this.state.currentLatLng,
+            timeAvailable: this.state.time
+            }
+        });
+    }
   };
 
   getDataFromMaps = data => {
@@ -78,7 +82,7 @@ export class Driver extends Component {
           <AuthUserContext.Consumer>
             {authUser =>
               authUser ? (
-                <div>
+                <div className="tile" style={{padding: "20px 50px"}}>
                   <div>
                     <h2>Want to deliver packages?</h2>
                     <div>
@@ -103,7 +107,6 @@ export class Driver extends Component {
                             How much time do you have for delivering?
                           </span>
                           <br />
-                          <br />
                           <span style={{ marginRight: "15px" }}>
                             {this.state.time}
                           </span>
@@ -124,7 +127,6 @@ export class Driver extends Component {
                         <button
                           className="buttons cta-button"
                           onMouseDown={this.handleSubmit}
-                          style={{ float: "right" }}
                         >
                           Continue
                         </button>

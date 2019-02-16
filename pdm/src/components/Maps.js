@@ -246,8 +246,7 @@ export class Maps extends Component {
                     this.props.callbackFromParent(this.state.coordinates)
                 }
 
-                marker.setPosition(newlatlong);
-                this.map.setZoom(12);
+                this.map.setZoom(11);
             }.bind(this));
         }
     }
@@ -257,13 +256,11 @@ export class Maps extends Component {
      */
     addInfoWindowForLocation(event, geocoder) {
         var infoWindow;
-        var marker;
 
         //Check, whether an Info Window already exists for the current location
         for (let i = 0; i < this.state.mapPositionArray.length; i++) {
             if (this.state.mapPositionArray[i].lat === event.latLng.lat() && this.state.mapPositionArray[i].lon === event.latLng.lng()) {
                 infoWindow = this.state.mapPositionArray[i].infoWindow;
-                marker = this.state.mapPositionArray[i].marker;
             }
             if (this.state.mapPositionArray[i].infoWindow) {
                 this.state.mapPositionArray[i].infoWindow.close();
@@ -293,6 +290,7 @@ export class Maps extends Component {
                 mapPositionArray: []
             })
         }
+        console.log(this.state.mapPositionArray)
     }
 
     createNewInfoWindow(lat, lng, geocoder) {

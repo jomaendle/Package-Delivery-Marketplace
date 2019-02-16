@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
-import { compose } from 'recompose';
+import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
+import { compose } from "recompose";
 import Header from "../components/Header";
 import Navigation from "../components/Navigation";
-import { SignUpLink } from '../SignUp';
-import { withFirebase } from '../Firebase';
-import firebase from "firebase"
+import { SignUpLink } from "../SignUp";
+import { withFirebase } from "../Firebase";
+import firebase from "firebase";
 
 const SignInPage = () => (
   <div className="App">
@@ -17,9 +17,9 @@ const SignInPage = () => (
 );
 
 const INITIAL_STATE = {
-  email: '',
-  password: '',
-  error: null,
+  email: "",
+  password: "",
+  error: null
 };
 
 class SignInFormBase extends Component {
@@ -38,21 +38,25 @@ class SignInFormBase extends Component {
         this.setState({ ...INITIAL_STATE });
 
         let token;
-        firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
-          // Send token to your backend via HTTPS
-          token = idToken;
-          console.log(idToken)
-          // ...
-        }).catch(function(error) {
-          // Handle error
-        });
+        firebase
+          .auth()
+          .currentUser.getIdToken(/* forceRefresh */ true)
+          .then(function(idToken) {
+            // Send token to your backend via HTTPS
+            token = idToken;
+            console.log(idToken);
+            // ...
+          })
+          .catch(function(error) {
+            // Handle error
+          });
 
         this.props.history.push({
-          pathname: '/',
-          state: { 
-              userToken: token
+          pathname: "/",
+          state: {
+            userToken: token
           }
-       })
+        });
       })
       .catch(error => {
         this.setState({ error });
@@ -68,40 +72,52 @@ class SignInFormBase extends Component {
   render() {
     const { email, password, error } = this.state;
 
-    const isInvalid = password === '' || email === '';
+    const isInvalid = password === "" || email === "";
 
     return (
-        <div style={{marginTop: "65px"}}>
-            <h1>Sign In</h1>
+      <div className="App">
+        <div className="main-content">
+          <div className="tile">
+            <h1 style={{
+              textAlign: "center",
+              marginBottom: "40px"
+            }}>Sign In</h1>
             <form onSubmit={this.onSubmit}>
-            <input
+              <input
                 name="email"
                 value={email}
                 onChange={this.onChange}
                 type="text"
+                style={{width: "230px", display: "block", margin: "0 auto"}}
                 placeholder="Email Address"
-            />
-            <input
+              />
+              <br/>
+              <input
                 name="password"
                 value={password}
                 onChange={this.onChange}
+                style={{width: "230px", display: "block", margin: "0 auto"}}
                 type="password"
                 placeholder="Password"
-            />
-            <button disabled={isInvalid} type="submit">
+              />
+              <br/>
+              <button className="buttons" disabled={isInvalid} type="submit"
+              style={{display: "block", margin: "0 auto"}}>
                 Sign In
-            </button>
+              </button>
 
-            {error && <p>{error.message}</p>}
+              {error && <p>{error.message}</p>}
             </form>
+          </div>
         </div>
+      </div>
     );
   }
 }
 
 const SignInForm = compose(
   withRouter,
-  withFirebase,
+  withFirebase
 )(SignInFormBase);
 
 export default SignInPage;

@@ -82,26 +82,37 @@ export class Package extends Component {
       let res;
       console.log(token);
 
+      //Get start location
       let startLocation = {
         lat: this.state.mapPositionArray[0].lat,
         lng: this.state.mapPositionArray[0].lon
       };
 
+      //Get destination of package
       let destination = {
         lat: this.state.mapPositionArray[1].lat,
         lng: this.state.mapPositionArray[1].lon
       };
 
-      axios
-        .post("https://us-central1-studienarbeit.cloudfunctions.net/parcel", {
-          action: "submit",
-          user_token: token,
-          size: size,
-          weight: weight,
-          priority: priority,
-          comment: comment,
-          pickup_location: startLocation,
-          destination_location: destination
+      //Wrap data into object
+      let data = JSON.stringify({
+        action: "submit",
+        user_token: token,
+        price: price,
+        size: size,
+        weight: weight,
+        priority: priority,
+        comment: comment,
+        pickup_location: startLocation,
+        destination_location: destination
+      })
+
+      console.log(data)
+      //Send HTTP Post request
+      axios.post("https://us-central1-studienarbeit.cloudfunctions.net/parcel", data, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
         })
         .then(response => {
           console.log(response);
@@ -111,28 +122,23 @@ export class Package extends Component {
           console.log(error);
         });
 
-      let currentPackage = {
-        size,
-        weight,
-        priority,
-        comment,
-        price
-      };
-
-      this.continueToFinalPage(currentPackage, res);
+        //Redirect to final page
+        this.continueToFinalPage(data, res);
     } else {
       alert("Please select the start and final destination of the package. ");
     }
   };
 
   getUserToken() {
-    firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
-      this.setState({
-          userToken: idToken
-      })
-    }.bind(this)).catch(function(error) {
-      // Handle error
-    });
+      if(firebase.auth().currentUser){
+          firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
+            this.setState({
+                userToken: idToken
+            })
+          }.bind(this)).catch(function(error) {
+            // Handle error
+          });
+      }
   }
 
   redirectToCompletePage() {
@@ -199,7 +205,7 @@ export class Package extends Component {
           <AuthUserContext.Consumer>
             {authUser =>
               authUser ? (
-                <div>
+                <div className="tile" style={{padding: "20px 50px"}}>
                   <h2>Insert a new package to the marketplace</h2>
                   <div>
                     <Map callbackFromParent={this.getDataFromMaps} />
@@ -213,9 +219,9 @@ export class Package extends Component {
                           ref={this.sizeRef}
                           className="package-insert-select"
                         >
-                          <option value="small">S (35 x 25 x 10 cm)</option>
-                          <option value="medium">M (60 x 30 x 15 cm)</option>
-                          <option value="large">L (120 x 60 x 60 cm)</option>
+                          <option value="S">S (35 x 25 x 10 cm)</option>
+                          <option value="M">M (60 x 30 x 15 cm)</option>
+                          <option value="L">L (120 x 60 x 60 cm)</option>
                         </select>
                       </p>
                       <p className="p-border">
@@ -237,7 +243,6 @@ export class Package extends Component {
                           <span style={{ fontWeight: 600 }}>
                             What priority should it have?
                           </span>{" "}
-                          <br />
                           <br />
                           <span
                             style={{
@@ -264,7 +269,6 @@ export class Package extends Component {
                           <span style={{ fontWeight: 600 }}>
                             Whats your maximum price?
                           </span>{" "}
-                          <br />
                           <br />
                           <span
                             style={{

@@ -56,7 +56,7 @@ export class FinalPage extends Component {
                 <AuthUserContext.Consumer>
                 {authUser =>
                     authUser ? 
-                    <div style={{paddingTop: "24px", textAlign: "center"}}>
+                    <div className="tile" style={{paddingTop: "24px", textAlign: "center"}}>
                         <img style={{width: "150px"}} alt="Shows a route between two points" src="/assets/distance.png"/>
                         {data}
                     </div>
