@@ -197,6 +197,23 @@ input[type=text], input[type=password] {
   box-shadow: 0px 1px 2px 0px #c3c3c3;
 }
 
+.button-disabled {
+  display: inline-block;
+  padding: 0.6em 1.2em;
+  border: 0.1em solid #FFFFFF;
+  margin: 0 0.3em 0.3em 0;
+  border-radius: 3px;
+  box-sizing: border-box;
+  background-color: #cdcdcd;
+  text-decoration: none;
+  font-weight: 300;
+  color: #2b2b2b;
+  text-align: center;
+  font-size: 14px;
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s;
+}
+
 /**
 Range CSS
 */

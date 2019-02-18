@@ -166,6 +166,13 @@ export class Maps extends Component {
             this.state.directionsService.route({
                 origin: this.state.startLocation,
                 destination: this.state.destination,
+                waypoints: [{
+                    location: {
+                        lat: 48.770725, 
+                        lng: 9.165130
+                    },
+                    stopover: true
+                }],
                 travelMode: google.maps.TravelMode.DRIVING,
                 provideRouteAlternatives: true
             }, function (response, status) {

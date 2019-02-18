@@ -13,8 +13,8 @@ export class Driver extends Component {
 
     this.state = {
       startLocation: {
-        lat: 48.57767,
-        lng: 9.265834
+        lat: 0,
+        lng: 0
       },
       destination: {
         lat: 48.558917,
@@ -31,7 +31,9 @@ export class Driver extends Component {
   componentWillMount() {
     //Get start location and destination
     if (this.props.location.state) {
+      console.log(this.props.location.state);
       this.setState({
+        startLocation: this.props.location.state.currentLatLng,
         userToken: this.props.location.state.userToken
       });
     }
@@ -45,11 +47,19 @@ export class Driver extends Component {
     this.props.history.push({
       pathname: "/driver-select-packages",
       state: {
-        currentLatLng: this.state.currentLatLng,
-        timeAvailable: this.state.time
+        currentLatLng: this.state.currentLatLng
       }
     });
   };
+
+  handlePickUp = (e) => {
+    e.preventDefault();
+    e.target.disabled = true;
+    e.target.classList.add("button-disabled");
+    e.target.classList.remove("buttons");
+    
+    //API Call to set Button status to delivery
+  }
 
   render() {
     return (
@@ -70,7 +80,7 @@ export class Driver extends Component {
                     calculateRoute="true"
                   />
 
-                  <button className="buttons" ref={this.pickedUpButton}>
+                  <button className="buttons" ref={this.pickedUpButton} onClick={this.handlePickUp}>
                     Picked Up
                   </button>
                   <button
@@ -78,7 +88,7 @@ export class Driver extends Component {
                     ref={this.submittedButton}
                     style={{ float: "right" }}
                   >
-                    Submitted
+                    Delivered
                   </button>
                 </div>
               ) : (

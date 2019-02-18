@@ -17,7 +17,7 @@ export class Driver extends Component {
         lng: 0,
         address: ""
       },
-      time: 0,
+      radius: 0,
       userToken: null
     };
 
@@ -36,19 +36,19 @@ export class Driver extends Component {
     if (this.props.location.state) {
       this.setState({
         userToken: this.props.location.state.userToken,
-        time: "Hours: 5"
+        radius: "50 km"
       });
     } else {
       this.setState({
-        time: "Hours: 5"
+        radius: "50 km"
       });
     }
   }
 
-  updateTimeLabel(e) {
+  updateRadiusLabel(e) {
     e.preventDefault();
     this.setState({
-      time: "Hours: " + this.rangeRef.current.value
+      radius: this.rangeRef.current.value + " km"
     });
   }
 
@@ -59,8 +59,8 @@ export class Driver extends Component {
         this.props.history.push({
             pathname: "/driver-select-packages",
             state: {
-            currentLatLng: this.state.currentLatLng,
-            timeAvailable: this.state.time
+                currentLatLng: this.state.currentLatLng,
+                radius: this.state.radius
             }
         });
     }
@@ -104,21 +104,21 @@ export class Driver extends Component {
                         />
                         <p className="p-border">
                           <span style={{ fontWeight: 600 }}>
-                            How much time do you have for delivering?
+                            How far do you want to deliver?
                           </span>
                           <br />
-                          <span style={{ marginRight: "15px" }}>
-                            {this.state.time}
+                          <span style={{ marginRight: "10px", display: "inline-block", width: "50px" }}>
+                            {this.state.radius}
                           </span>
                           <input
                             type="range"
                             ref={this.rangeRef}
                             name="priority"
                             min="1"
-                            max="5"
-                            style={{ width: "250px", marginTop: "15px" }}
+                            max="50"
+                            style={{ width: "170px", marginTop: "15px" }}
                             onChange={e => {
-                              this.updateTimeLabel(e);
+                              this.updateRadiusLabel(e);
                             }}
                           />
                         </p>

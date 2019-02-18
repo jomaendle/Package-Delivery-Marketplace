@@ -25,7 +25,7 @@ export class ConfirmationPage extends Component {
     if (this.props.location.state) {
       this.setState({
         selectedPackages: this.props.location.state.selectedPackages,
-        timeAvailable: this.props.location.state.prevState.timeAvailable,
+        radius: this.props.location.state.prevState.radius,
         currentLatLng: this.props.location.state.prevState.currentLatLng
       });
     }
@@ -44,7 +44,8 @@ export class ConfirmationPage extends Component {
     this.props.history.push({
       pathname: "/driver-route",
       state: {
-        userType: "driver"
+        selectedPackages: this.state.selectedPackages,
+        currentLatLng: this.state.currentLatLng
       }
     });
   }
@@ -64,15 +65,15 @@ export class ConfirmationPage extends Component {
                     <div>
                       <p style={{ marginBottom: "45px" }}>
                         <span style={{ fontWeight: 600 }}>
-                          Your available time level is:
+                          Your selected radius is:
                         </span>{" "}
-                        {this.state.timeAvailable}
+                        {this.state.radius}
                       </p>
                       <p style={{ marginBottom: "45px" }}>
                         <span style={{ fontWeight: 600 }}>
                           Your current position is:
                         </span>{" "}
-                        {this.state.currentLatLng.address} <br />
+                        {this.state.currentLatLng.address}
                         {this.state.currentLatLng.lat.toFixed(4)} ,{" "}
                         {this.state.currentLatLng.lng.toFixed(4)}
                       </p>
