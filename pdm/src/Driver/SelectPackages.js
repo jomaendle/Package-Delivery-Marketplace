@@ -7,6 +7,7 @@ import { withAuthentication, AuthUserContext } from "../Session";
 require("dotenv").config();
 
 export class Package extends Component {
+  _packageSelected = false;
   constructor() {
     super();
 
@@ -63,43 +64,32 @@ export class Package extends Component {
 
   handlePackageClick = e => {
     //Get all spans from click event
-    if (e.target.tagName === "DIV") {
-      let allSpans = e.target.querySelectorAll("span");
-      let list = [];
+    if (this._packageSelected === false) {
+      if (e.target.tagName === "DIV") {
+        let allSpans = e.target.querySelectorAll("span");
+        let list = [];
 
-      //Catch innerHTML Information from spans
-      allSpans.forEach(element => {
-        list.push(element.innerHTML);
-      });
+        //Catch innerHTML Information from spans
+        allSpans.forEach(element => {
+          list.push(element.innerHTML);
+        });
 
-      let selectedPackage;
-      if (this.state.selectedPackages) {
-        if (!this.state.selectedPackages.includes(list[0].innerHTML)) {
+        if (this.state.selectedPackages) {
           //Create new package object to pass it to confirmation page
-          selectedPackage = {
+          let selectedPackage = {
             parcel_id: list[0],
             parcel_status: list[1],
             title: list[2],
             time_created: list[3]
           };
-
           //Add new package to currently selected packages.
           this.state.selectedPackages.push(selectedPackage);
           e.target.className = "listed-packages-clicked";
         }
-      } else {
-        //Create new package object to pass it to confirmation page
-        selectedPackage = {
-          parcel_id: list[0],
-          parcel_status: list[1],
-          title: list[2],
-          time_created: list[3]
-        };
-
-        //Add new package to currently selected packages.
-        this.state.selectedPackages.push(selectedPackage);
-        e.target.className = "listed-packages-clicked";
+        this._packageSelected = true;
       }
+    } else {
+      window.alert("Only one package at a time allowed.");
     }
   };
 

@@ -82,7 +82,7 @@ export class Driver extends Component {
           <AuthUserContext.Consumer>
             {authUser =>
               authUser ? (
-                <div className="tile" style={{padding: "20px 50px"}}>
+                <div id="driver-site-div" className="tile">
                   <div>
                     <h2>Want to deliver packages?</h2>
                     <div>
@@ -99,8 +99,7 @@ export class Driver extends Component {
                         </span>
                         <Map
                           callbackFromDriver={this.getDataFromMaps}
-                          allowMultipleClicks="false"
-                          showAutoCompleteBar="true"
+                          numberOfClicksAllowed ="1"
                         />
                         <p className="p-border">
                           <span style={{ fontWeight: 600 }}>

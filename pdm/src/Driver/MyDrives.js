@@ -7,16 +7,16 @@ import firebase from "firebase";
 import { Link } from "react-router-dom";
 import { withAuthentication, AuthUserContext } from "../Session";
 
-export class MyPackages extends Component {
+export class MyDrives extends Component {
   constructor() {
     super();
 
     this.state = {
-      packages: [],
+      drives: [],
       userToken: null
     };
 
-    this.getUserPackages = this.getUserPackages.bind(this);
+    this.getUserDrives = this.getUserDrives.bind(this);
     this.getUserToken = this.getUserToken.bind(this);
   }
 
@@ -24,7 +24,7 @@ export class MyPackages extends Component {
     this.getUserToken();
   }
 
-  getUserPackages() {
+  getUserDrives() {
     //Wrap data into object
 
     let data = JSON.stringify({
@@ -46,7 +46,7 @@ export class MyPackages extends Component {
       .then(response => {
         console.log(response.data.list);
         this.setState({
-          packages: response.data.list
+          drives: response.data.list
         });
       })
       .catch(error => {
@@ -75,73 +75,47 @@ export class MyPackages extends Component {
       }
   }
 
-  showPackageDetail = (e, p) => {
-    this.props.history.push({
-      pathname: "/package-details",
-      state: {
-        currentPackageID: p
-      }
-    });
-  }
-
-  /*removePackage(e, p_id) {
-    if (this.state.packages.length > 0) {
-      e.preventDefault();
-      if (e.target.parentElement.id !== "my-packages-container") {
-        e.target.parentElement.classList.add("hidden");
-        setTimeout(
-          function() {
-            let filteredArray = this.state.packages.filter(
-              item => item.parcel_id !== p_id
-            );
-            this.setState({ packages: filteredArray });
-          }.bind(this),
-          1150
-        );
-      }
-    }
-  }*/
-
   render() {
     return (
       <div className="App">
         <Header />
-        <Navigation currentPage="package" />
+        <Navigation currentPage="delivery" />
         <div className="main-content">
           <AuthUserContext.Consumer>
             {authUser =>
               authUser ? (
-                <div className="tile" style={{minhHight: "180px", padding: "25px"}}>
+                <div className="tile" style={{padding: "25px", minHeight: "180px"}}>
                   <div id="my-packages-container">
-                    <h2>Manage your packages.</h2>
+                    <h2>Manage your deliveries.</h2>
+                    <Link to="/driver">
+                      <button
+                        className="buttons cta-button"
+                        style={{
+                          position: "absolute",
+                          top: "40px",
+                          right: "20px"
+                        }}
+                      >
+                        Add Delivery
+                      </button>
+                    </Link>
 
-                    {this.state.packages.length ? this.state.packages.map((p, index) => {
+                    {this.state.drives.length > 0 ? this.state.drives.map((p, index) => {
                       return (
                         <div
                           className="listed-packages"
                           key={index}
-                          onClick={e => this.showPackageDetail(e, p)}
                         >
                           <span className="packages-table">{p}</span>
 
                         </div>
                       );
-                    }) 
-                    
-                    : (
-                      <div id="no-available-div">
-                          No packages available. <br/>
-                          You can insert a new one by clicking <Link style={{ color: "#4e83c5"}} to="/new-package">here</Link>.
-                      </div>
+                    }) : (
+                        <div style={{marginTop: "50px"}}>
+                            No deliveries available. <br/>
+                            You can start a new one by clicking <Link style={{ color: "#4e83c5"}} to="/driver">here</Link>.
+                        </div>
                     )}
-                    <Link to="/new-package">
-                      <button
-                        id="add-package-button"
-                        className="buttons cta-button"
-                      >
-                        Add Package
-                      </button>
-                    </Link>
                   </div>
                 </div>
               ) : (
@@ -157,4 +131,4 @@ export class MyPackages extends Component {
   }
 }
 
-export default withAuthentication(MyPackages);
+export default withAuthentication(MyDrives);

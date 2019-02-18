@@ -29,10 +29,12 @@ export class Maps extends Component {
             place: null,
             mapPositionArray: [],
             allowMultipleClicks: true,
+            allowSingleClicks: true,
             showAutoCompleteBar: true,
             duration: "",
             distance: "",
             scriptLoaded: false,
+            numberOfClicksAllowed: 2,
             coordinates: {
                 lat: 48.7823200,
                 lng: 9.1770200
@@ -48,9 +50,9 @@ export class Maps extends Component {
 
     componentWillMount() {
         //this.getGeoLocation();
-        if (this.props.allowMultipleClicks === "false") {
+        if (this.props.numberOfClicksAllowed) {
             this.setState({
-                allowMultipleClicks: false
+                numberOfClicksAllowed: parseInt(this.props.numberOfClicksAllowed, 10)
             })
         }
         if (this.props.showAutoCompleteBar === "false") {
@@ -69,7 +71,7 @@ export class Maps extends Component {
 
 
     componentDidMount() {
-        this._isMounted = true;
+        console.log(this.state)
         if (this.props.calculateRoute === "true") {
             setTimeout(
                 function () {
@@ -125,6 +127,7 @@ export class Maps extends Component {
     //}
 
     initMap() {
+        
         this.geocoder = new google.maps.Geocoder();
 
         //this.getGeoLocation();
@@ -139,7 +142,7 @@ export class Maps extends Component {
         // Add Event listener to map
         // Create new Info Window and Marker for each clicked location
         google.maps.event.addListener(this.map, 'click', function (event) {
-            if (this.state.allowMultipleClicks) {
+            if (this.state.numberOfClicksAllowed > 0) {
                 this.addInfoWindowForLocation(event, this.geocoder);
             }
         }.bind(this));
@@ -285,11 +288,20 @@ export class Maps extends Component {
             )
         }
 
-        this.props.callbackFromParent(this.state.mapPositionArray)
+        if(this.props.callbackFromParent){
+            this.props.callbackFromParent(this.state.mapPositionArray)
+        }else if(this.props.callbackFromDriver){
+            this.props.callbackFromDriver(
+                {
+                    lat:  event.latLng.lat(),
+                    lng:  event.latLng.lng()
+                }
+            )
+        }
     }
 
     checkIfInfoWindowIsReached() {
-        if (this.state.mapPositionArray.length > 1) {
+        if (this.state.mapPositionArray.length > this.state.numberOfClicksAllowed -1 ) {
             for (let i = 0; i < this.state.mapPositionArray.length; i++) {
                 this.state.mapPositionArray[i].marker.setMap(null);
             }
@@ -297,7 +309,6 @@ export class Maps extends Component {
                 mapPositionArray: []
             })
         }
-        console.log(this.state.mapPositionArray)
     }
 
     createNewInfoWindow(lat, lng, geocoder) {

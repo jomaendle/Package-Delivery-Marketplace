@@ -27,7 +27,6 @@ class ProfileEdit extends Component {
 
   getUserData() {
     var user = this.props.firebase.auth.currentUser;
-    console.log(user);
     if (user != null) {
       this.setState({
         userID: user.uid,
@@ -86,7 +85,7 @@ class ProfileEdit extends Component {
     return (
       <div className="App">
         <Header />
-        <Navigation />
+        <Navigation currentPage="profile" />
         <div className="main-content">
           <AuthUserContext.Consumer>
             {authUser =>

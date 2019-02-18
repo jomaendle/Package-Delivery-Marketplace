@@ -41,8 +41,8 @@ import { AuthUserContext } from "../Session";
           </li>
       	  <li>
             {this.state.currentPage==="delivery" 
-              ? <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/driver"}>Delivery </Link>
-              : <Link className="navigation-links" to={"/driver"}> Delivery </Link>
+              ? <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/drives"}>My Deliveries </Link>
+              : <Link className="navigation-links" to={"/drives"}> My Deliveries </Link>
             }
           </li>
           <li>

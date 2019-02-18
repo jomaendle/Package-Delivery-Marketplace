@@ -488,7 +488,6 @@ Become driver page
  .tile {
   box-shadow: 0px 4px 4px 2px #e5e5e5;
   border-radius: 2px;
-  font-family: 'Raleway', sans-serif;
   border-bottom: solid 1px rgba(200, 200, 200, 0.53);
   line-height: 30px;
   padding: 25px;
@@ -502,9 +501,32 @@ Become driver page
   font-family: 'Raleway', sans-serif;
  }
 
+#driver-site-div {
+  padding: 20px 50px;
+}
+
  #my-packages-container {
    padding-left: 10px;
  }
+
+ #add-package-button {
+  position: absolute;
+  top: 40px;
+  right: 20px;
+ }
+
+ #no-available-div {
+   margin-top: 50px;
+ }
+
+#mobile-menu-logo {
+
+  width: 38px;
+  left: 16px;
+  display: none;
+  top: 6px;
+  position: absolute;
+}
 
 @keyframes App-logo-spin {
   from {
@@ -544,8 +566,54 @@ Become driver page
   }
   .main-content{
     padding: 0;
-    padding-top: 1px;
     width: 100%;
     left: 0;
+    margin-top: 50px;
+  }
+
+  .App {
+    width: 100%;
+  }
+
+
+  #Header-label {
+    margin: 13px 20px;
+    font-size: 1.2em;
+    margin-left: 60px;
+  }
+
+  #Header {
+    height: 50px;
+  }
+
+  p {
+    margin-bottom: initial;
+  }
+
+  .tile {
+    line-height: 25px;
+    padding: 10px 15px;
+    padding-top: 1px;
+    text-align: left;
+  }
+
+  #driver-site-div {
+    padding: 10px 15px;
+  }
+
+
+  #no-available-div{
+    margin-top: 0;
+  }
+
+  #add-package-button {
+    position: relative;
+    margin-top: 20px;
+    top: 0;
+    right: 0;
+  }
+
+  #mobile-menu-logo {
+    display: block;
   }
 }

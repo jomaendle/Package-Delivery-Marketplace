@@ -205,10 +205,12 @@ export class Package extends Component {
           <AuthUserContext.Consumer>
             {authUser =>
               authUser ? (
-                <div className="tile" style={{padding: "20px 50px"}}>
+                <div id="driver-site-div" className="tile">
                   <h2>Insert a new package to the marketplace</h2>
                   <div>
-                    <Map callbackFromParent={this.getDataFromMaps} />
+                    <Map 
+                    callbackFromParent={this.getDataFromMaps}
+                    numberOfClicksAllowed ="2"/>
                     <form onSubmit={this.handleSubmit}>
                       <p className="p-border">
                         <span style={{ fontWeight: 600 }}>

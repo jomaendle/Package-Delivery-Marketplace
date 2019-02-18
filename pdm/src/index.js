@@ -13,6 +13,8 @@ import ProfileEdit from "./ProfileEdit";
 import FinalPage from "./FinalPage";
 import DriverRoute from "./Driver/DriverRoute"
 import MyPackages from "./PackageInsert/MyPackages"
+import MyDrives from "./Driver/MyDrives"
+import PackageDetails from "./PackageInsert/PackageDetails"
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import * as serviceWorker from './serviceWorker';
 import Firebase, { FirebaseContext } from './Firebase';
@@ -29,6 +31,8 @@ ReactDOM.render(
                 <Route exact path="/profile-edit" component={ProfileEdit}></Route>
                 <Route exact path="/new-package" component={Package}></Route>
                 <Route exact path="/packages" component={MyPackages}></Route>
+                <Route exact path="/package-details" component={PackageDetails}></Route>
+                <Route exact path="/drives" component={MyDrives}></Route>
                 <Route exact path="/driver-select-packages" component={SelectPackages}></Route>
                 <Route exact path="/driver" component={Driver}></Route>
                 <Route exact path="/driver-confirm" component={ConfirmPage}></Route>
