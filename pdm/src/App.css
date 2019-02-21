@@ -596,6 +596,23 @@ Become driver page
   border: none;
 }
 
+.navigation-links {
+border-bottom: "solid";
+ padding-bottom: "3px"; 
+font-weight: 600;
+}
+
+.sign-up-form {
+  width: 230px;
+  display: block;
+  margin: 0 auto;
+}
+
+#sign-up-button {
+  display: block; 
+  margin: 0 auto;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

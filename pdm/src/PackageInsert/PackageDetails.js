@@ -108,8 +108,10 @@ export class PackageDetail extends Component {
                   </div>
                 </div>
               ) : (
-                <div className="userNotLoggedIn-label">
-                  Please log in to access this page.
+                <div className="tile">
+                  <div className="userNotLoggedIn-label">
+                    Please log in to access this page.
+                  </div>
                 </div>
               )
             }

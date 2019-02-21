@@ -157,8 +157,8 @@ export class Driver extends Component {
                   </button>
                 </div>
               ) : (
-                <div>
-                  <div className="userNotLoggedInlabel">
+                <div className="tile">
+                  <div className="userNotLoggedIn-label">
                     Please log in to access this page.
                   </div>
                 </div>

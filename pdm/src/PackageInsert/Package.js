@@ -349,7 +349,7 @@ export class Package extends Component {
                   </div>
                 </div>
               ) : (
-                <div>
+                <div className="tile">
                   <div className="userNotLoggedIn-label">
                     Please log in to access this page.
                   </div>

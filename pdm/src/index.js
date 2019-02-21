@@ -4,17 +4,17 @@ import './index.css';
 import App from './App';
 import Login from "./SignIn/index";
 import SignUp from "./SignUp/index";
-import Profile from "./Profile";
+import Profile from "./People/Profile";
 import Package from "./PackageInsert/Package"
 import SelectPackages from "./Driver/SelectPackages"
 import Driver from "./Driver/Driver"
 import ConfirmPage from "./Driver/ConfirmPage"
-import ProfileEdit from "./ProfileEdit";
+import ProfileEdit from "./People/ProfileEdit";
 import FinalPage from "./FinalPage";
 import DriverRoute from "./Driver/DriverRoute"
 import MyPackages from "./PackageInsert/MyPackages"
 import MyDrives from "./Driver/MyDrives"
-import Ratings from "./Ratings"
+import Ratings from "./People/Ratings"
 import PackageDetails from "./PackageInsert/PackageDetails"
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import * as serviceWorker from './serviceWorker';

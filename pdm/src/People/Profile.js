@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import Navigation from "./components/Navigation";
-import Header from "./components/Header";
+import Navigation from "../components/Navigation";
+import Header from "../components/Header";
 import { Link } from "react-router-dom";
-import { withAuthentication, AuthUserContext } from "./Session";
-import "./App.css";
+import { withAuthentication, AuthUserContext } from "../Session";
+import "../App.css";
 
 class Profile extends Component {
   constructor(props) {
@@ -79,8 +79,10 @@ class Profile extends Component {
                   </Link>
                 </div>
               ) : (
-                <div className="userNotLoggedIn-label">
-                  Please log in to access this page.
+                <div className="tile">
+                  <div className="userNotLoggedIn-label">
+                    Please log in to access this page.
+                  </div>
                 </div>
               )
             }

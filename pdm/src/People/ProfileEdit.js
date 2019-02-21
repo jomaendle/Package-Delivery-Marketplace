@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import Navigation from "./components/Navigation";
-import Header from "./components/Header";
+import Navigation from "../components/Navigation";
+import Header from "../components/Header";
 import firebase from "firebase/app";
-import { withAuthentication, AuthUserContext } from "./Session";
-import "./App.css";
+import { withAuthentication, AuthUserContext } from "../Session";
+import "../App.css";
 
 class ProfileEdit extends Component {
   constructor(props) {
@@ -130,8 +130,10 @@ class ProfileEdit extends Component {
                   </div>
                 </div>
               ) : (
-                <div className="userNotLoggedIn-label">
-                  Please log in to access this page.
+                <div className="tile">
+                  <div className="userNotLoggedIn-label">
+                    Please log in to access this page.
+                  </div>
                 </div>
               )
             }

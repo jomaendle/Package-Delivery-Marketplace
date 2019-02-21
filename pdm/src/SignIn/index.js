@@ -10,7 +10,7 @@ import firebase from "firebase";
 const SignInPage = () => (
   <div className="App">
     <Header />
-    <Navigation />
+    <Navigation currentPage="login" />
     <SignInForm />
     <SignUpLink />
   </div>
@@ -88,7 +88,7 @@ class SignInFormBase extends Component {
                 value={email}
                 onChange={this.onChange}
                 type="text"
-                style={{width: "230px", display: "block", margin: "0 auto"}}
+                className="sign-up-form"
                 placeholder="Email Address"
               />
               <br/>
@@ -96,13 +96,12 @@ class SignInFormBase extends Component {
                 name="password"
                 value={password}
                 onChange={this.onChange}
-                style={{width: "230px", display: "block", margin: "0 auto"}}
+                className="sign-up-form"
                 type="password"
                 placeholder="Password"
               />
               <br/>
-              <button className="buttons" disabled={isInvalid} type="submit"
-              style={{display: "block", margin: "0 auto"}}>
+              <button id="sign-up-button" className="buttons" disabled={isInvalid} type="submit">
                 Sign In
               </button>
 

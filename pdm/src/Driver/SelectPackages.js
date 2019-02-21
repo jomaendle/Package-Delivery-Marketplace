@@ -22,12 +22,14 @@ export class Package extends Component {
   }
 
   componentWillMount() {
-    this.setState({
-      radius: this.props.location.state.radius,
-      userToken: this.props.location.state.userToken,
-      currentLatLng: this.props.location.state.currentLatLng,
-    })
-    this.getDriverPackages();
+    if(this.props.location.state){
+      this.setState({
+        radius: this.props.location.state.radius,
+        userToken: this.props.location.state.userToken,
+        currentLatLng: this.props.location.state.currentLatLng,
+      })
+      this.getDriverPackages();
+    }
   }
 
   getDriverPackages = () => {
@@ -171,7 +173,7 @@ export class Package extends Component {
                   </button>
                 </div>
               ) : (
-                <div>
+                <div className="tile">
                   <div className="userNotLoggedIn-label">
                     Please log in to access this page.
                   </div>

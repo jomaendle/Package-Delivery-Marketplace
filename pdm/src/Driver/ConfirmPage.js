@@ -29,7 +29,7 @@ export class ConfirmationPage extends Component {
         currentLatLng: this.props.location.state.prevState.currentLatLng
       });
     }
-    console.log(this.props.location.state)
+    console.log(this.props.location.state);
   }
 
   ReturnToPreviousPage() {
@@ -86,31 +86,57 @@ export class ConfirmationPage extends Component {
                       </p>
                       {this.state.selectedPackages.map((p, index) => {
                         return (
-                          <div
-                            className="listed-packages"
-                            key={index}
-                          >
-                            <span id="packages-table-heading" className="packages-table">
-                              <img style={{
-                              width: "28px",
-                              top: "8px",
-                              position: "relative",
-                              marginRight: "8px"
-                              }} alt="Shows an a route with multiple waypoints." src="/assets/box.png"/>
-                              Package {index+1} 
+                          <div className="listed-packages" key={index}>
+                            <span
+                              id="packages-table-heading"
+                              className="packages-table"
+                            >
+                              <img
+                                style={{
+                                  width: "28px",
+                                  top: "8px",
+                                  position: "relative",
+                                  marginRight: "8px"
+                                }}
+                                alt="Shows an a route with multiple waypoints."
+                                src="/assets/box.png"
+                              />
+                              Package {index + 1}
                             </span>
                             <span className="packages-table">
-                            <b>{(p.distance_current_pickup/1000).toFixed(2)} km </b> Your location - Pickup 
+                              <b>
+                                {(p.distance_current_pickup / 1000).toFixed(2)}{" "}
+                                km{" "}
+                              </b>{" "}
+                              Your location - Pickup
                             </span>
                             <span className="packages-table">
-                            <b>{(p.distance_pickup_destination/1000).toFixed(2)} km </b> Pickup - Destination 
+                              <b>
+                                {(p.distance_pickup_destination / 1000).toFixed(
+                                  2
+                                )}{" "}
+                                km{" "}
+                              </b>{" "}
+                              Pickup - Destination
                             </span>
-                            <span className="packages-table" style={{fontSize: "18px", display: "inline-block"}}>
-                            <b>{((p.distance_pickup_destination/1000) + 
-                                (p.distance_current_pickup/1000)).toFixed(2)} km </b> Combined 
+                            <span
+                              className="packages-table"
+                              style={{
+                                fontSize: "18px",
+                                display: "inline-block"
+                              }}
+                            >
+                              <b>
+                                {(
+                                  p.distance_pickup_destination / 1000 +
+                                  p.distance_current_pickup / 1000
+                                ).toFixed(2)}{" "}
+                                km{" "}
+                              </b>{" "}
+                              Combined
                             </span>
-                            <span style={{float: "right", fontSize: "20px"}}>
-                             <b> {(p.potential_earning / 100).toFixed(2)}€ </b>
+                            <span style={{ float: "right", fontSize: "20px" }}>
+                              <b> {(p.potential_earning / 100).toFixed(2)}€ </b>
                             </span>
                           </div>
                         );
@@ -131,7 +157,7 @@ export class ConfirmationPage extends Component {
                     </button>
                   </div>
                 ) : (
-                  <div>
+                  <div className="tile">
                     <div className="userNotLoggedIn-label">
                       Please log in to access this page.
                     </div>
@@ -139,29 +165,6 @@ export class ConfirmationPage extends Component {
                 )
               }
             </AuthUserContext.Consumer>
-          </div>
-        </div>
-      );
-    } else {
-      return (
-        <div>
-          <div className="App">
-            <Header />
-            <Navigation />
-            <div className="main-content">
-              <h3>Congrats! Check your information and submit</h3>
-              <h4 />
-              <div />
-              <button
-                className="buttons"
-                onMouseDown={this.ReturnToPreviousPage}
-              >
-                Back
-              </button>
-              <button className="buttons" style={{ float: "right" }}>
-                Submit
-              </button>
-            </div>
           </div>
         </div>
       );

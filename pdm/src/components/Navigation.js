@@ -26,23 +26,23 @@ import { AuthUserContext } from "../Session";
         <ul  id="navigation-bar">
           <li>
             {this.state.currentPage==="home" 
-            ?  <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/"}> Home </Link>
-            :  <Link className="navigation-links" to={"/"}> Home </Link>}
+            ?  <Link className="navigation-links" to={"/"}> Home </Link>
+            :  <Link to={"/"}> Home </Link>}
           </li>
           <li>
           {this.state.currentPage==="profile" 
-            ?  <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/profile"}> Profile </Link>
-            :  <Link className="navigation-links" to={"/profile"}> Profile </Link>}
+            ?  <Link className="navigation-links" to={"/profile"}> Profile </Link>
+            :  <Link  to={"/profile"}> Profile </Link>}
           </li>
          <li>
           {this.state.currentPage==="package" 
-          ? <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/packages"}> My Packages </Link>
-          :  <Link className="navigation-links" to={"/packages"}> My Packages </Link>}
+          ? <Link className="navigation-links" to={"/packages"}> My Packages </Link>
+          :  <Link to={"/packages"}> My Packages </Link>}
           </li>
       	  <li>
             {this.state.currentPage==="delivery" 
-              ? <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/drives"}>My Deliveries </Link>
-              : <Link className="navigation-links" to={"/drives"}> My Deliveries </Link>
+              ? <Link className="navigation-links" to={"/drives"}>My Deliveries </Link>
+              : <Link  to={"/drives"}> My Deliveries </Link>
             }
           </li>
           <li>
@@ -57,13 +57,13 @@ import { AuthUserContext } from "../Session";
         <ul id="navigation-bar">
           <li>
           {this.state.currentPage==="home" 
-            ?  <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/"}> Home </Link>
-            :  <Link className="navigation-links" to={"/"}> Home </Link>}
+            ?  <Link className="navigation-links" to={"/"}> Home </Link>
+            :  <Link to={"/"}> Home </Link>}
           </li>
           <li>
           {this.state.currentPage==="login" 
-            ?  <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/login"}> Sign In </Link>
-            :  <Link className="navigation-links" to={"/login"}> Sign In </Link>}
+            ?  <Link className="navigation-links" to={"/login"}> Sign In </Link>
+            :  <Link to={"/login"}> Sign In </Link>}
           </li>
         </ul>
     
