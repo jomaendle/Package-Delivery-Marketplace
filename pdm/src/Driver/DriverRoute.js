@@ -3,6 +3,8 @@ import Navigation from "../components/Navigation";
 import Header from "../components/Header";
 import "../App.css";
 import Map from "../components/Maps";
+import axios from "axios";
+import firebase from "firebase";
 import { withAuthentication } from "../Session";
 import { AuthUserContext } from "../Session";
 require("dotenv").config();
@@ -21,7 +23,9 @@ export class Driver extends Component {
         lng: 9.211809
       },
       time: 0,
-      userToken: null
+      userToken: null,
+      selectedPackages: [],
+      packagesWithCoords: []
     };
 
     this.pickedUpButton = React.createRef();
@@ -30,17 +34,78 @@ export class Driver extends Component {
 
   componentWillMount() {
     //Get start location and destination
+    console.log(this.props.location.state);
+    
     if (this.props.location.state) {
-      console.log(this.props.location.state);
       this.setState({
         startLocation: this.props.location.state.currentLatLng,
-        userToken: this.props.location.state.userToken
+        userToken: this.props.location.state.userToken,
+        selectedPackages: this.props.location.state.selectedPackages
       });
     }
   }
 
+  getUserToken = () => {
+    if(firebase.auth().currentUser){
+        firebase
+          .auth()
+          .currentUser.getIdToken(/* forceRefresh */ true)
+          .then(
+            function(idToken) {
+              this.setState(
+                {
+                  userToken: idToken
+                }
+              );
+            }.bind(this)
+          )
+          .catch(function(error) {
+            // Handle error
+          });
+    }
+}
+
   componentDidMount() {
+    if(this.state.selectedPackages.length > 0){
+      this.state.selectedPackages.map((entry) => {
+
+        this.getUserPackages(entry.parcel_id)
+      })
+
+    }
     //this.submittedButton.disabled = true;
+  }
+
+  getUserPackages(packageID) {
+    //Wrap data into object
+    console.log(this.state.userToken);
+
+    let data = JSON.stringify({
+      user_token: this.state.userToken,
+      action: "detail",
+      parcel_id: packageID
+    });
+
+    console.log(data);
+
+    //Send HTTP Post request
+    axios
+      .post(
+        "https://us-central1-studienarbeit.cloudfunctions.net/parcel",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      )
+      .then(response => {
+        console.log(response.data);
+        //this.state.packagesWithCoords.push()
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
   handleSubmit = e => {

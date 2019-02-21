@@ -26,12 +26,12 @@ export class MyPackages extends Component {
 
   getUserPackages() {
     //Wrap data into object
-
     let data = JSON.stringify({
       action: "list",
       user_token: this.state.userToken,
       parcel_id: ""
     });
+    
     //Send HTTP Post request
     axios
       .post(
@@ -79,7 +79,8 @@ export class MyPackages extends Component {
     this.props.history.push({
       pathname: "/package-details",
       state: {
-        currentPackageID: p
+        currentPackageID: p,
+        userToken: this.state.userToken
       }
     });
   }
@@ -111,7 +112,7 @@ export class MyPackages extends Component {
           <AuthUserContext.Consumer>
             {authUser =>
               authUser ? (
-                <div className="tile" style={{minhHight: "180px", padding: "25px"}}>
+                <div className="tile" style={{minHeight: "180px", padding: "25px"}}>
                   <div id="my-packages-container">
                     <h2>Manage your packages.</h2>
 

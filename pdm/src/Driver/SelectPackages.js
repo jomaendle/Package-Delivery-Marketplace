@@ -12,85 +12,73 @@ export class Package extends Component {
     super();
 
     this.state = {
-      packages: [
-        {
-          parcel_id: 1,
-          parcel_status: "home",
-          title: "P1",
-          time_created: "Tue, 22 Jan 2019 05:42:10 GMT"
-        },
-        {
-          parcel_id: 2,
-          parcel_status: "home",
-          title: "P2",
-          time_created: "Tue, 22 Jan 2019 08:22:10 GMT"
-        }
-      ],
+      packages: [],
       selectedPackages: [],
       userToken: null
     };
     this.handlePackageClick = this.handlePackageClick.bind(this);
     this.ReturnToPreviousPage = this.ReturnToPreviousPage.bind(this);
     this.ContinueToConfirmPage = this.ContinueToConfirmPage.bind(this);
-
-    let selectedPackages = [];
   }
 
   componentWillMount() {
-    // API Call to fetch the parcels which fit for the driver
-    axios
-      .get(
-        "https://us-central1-studienarbeit.cloudfunctions.net/parceldriver",
-        {
-          params: {
-            driver_position: "test",
-            radius: ""
-          }
-        }
-      )
-      .then(response => {
-        console.log(response);
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
-
-    if (this.props.location.state) {
-      this.setState({
-        userToken: this.props.location.state.userToken
-      });
-    }
+    this.setState({
+      radius: this.props.location.state.radius,
+      userToken: this.props.location.state.userToken,
+      currentLatLng: this.props.location.state.currentLatLng,
+    })
+    this.getDriverPackages();
   }
 
-  handlePackageClick = e => {
-    //Get all spans from click event
-    if (this._packageSelected === false) {
-      if (e.target.tagName === "DIV") {
-        let allSpans = e.target.querySelectorAll("span");
-        let list = [];
+  getDriverPackages = () => {
+    // API Call to fetch the parcels which fit for the driver
+    console.log(this.props.location.state);
+    if (
+      this.props.location.state.currentLatLng &&
+      this.props.location.state.userToken &&
+      this.props.location.state.radius
+    ) {
+      //Wrap data into object
+      let data = JSON.stringify({
+        driver_position:
+          this.props.location.state.currentLatLng.lat +
+          "," +
+          this.props.location.state.currentLatLng.lng,
+        radius: this.props.location.state.radius,
+        user_token: this.props.location.state.userToken
+      });
 
-        //Catch innerHTML Information from spans
-        allSpans.forEach(element => {
-          list.push(element.innerHTML);
+      //Send HTTP Post request
+      axios
+        .post(
+          "https://us-central1-studienarbeit.cloudfunctions.net/pd_suggestions",
+          data,
+          {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }
+        )
+        .then(response => {
+          console.log(response);
+          this.setState({
+            packages: response.data
+          });
+        })
+        .catch(error => {
+          console.log(error);
         });
-
-        if (this.state.selectedPackages) {
-          //Create new package object to pass it to confirmation page
-          let selectedPackage = {
-            parcel_id: list[0],
-            parcel_status: list[1],
-            title: list[2],
-            time_created: list[3]
-          };
-          //Add new package to currently selected packages.
-          this.state.selectedPackages.push(selectedPackage);
-          e.target.className = "listed-packages-clicked";
-        }
-        this._packageSelected = true;
-      }
-    } else {
-      window.alert("Only one package at a time allowed.");
     }
+  };
+
+  handlePackageClick = (e, index) => {   
+      //Add new package to currently selected packages.
+      this.state.selectedPackages.push(this.state.packages[index]);
+      if(e.target.tagName === "DIV"){
+        e.target.className = "listed-packages-clicked";
+      }else if(e.target.tagName === "SPAN" && e.target.parentElement.tagName === "DIV"){
+        e.target.parentElement.className = "listed-packages-clicked";
+      }
   };
 
   ReturnToPreviousPage() {
@@ -134,17 +122,29 @@ export class Package extends Component {
                           <div
                             className="listed-packages"
                             key={index}
-                            onMouseDown={this.handlePackageClick}
+                            onMouseDown={e => this.handlePackageClick(e, index)}
                           >
-                            <span className="packages-table">
-                              {p.parcel_id}
+                            <span id="packages-table-heading" className="packages-table">
+                              <img style={{
+                              width: "28px",
+                              top: "8px",
+                              position: "relative",
+                              marginRight: "8px"
+                              }} alt="Shows an a route with multiple waypoints." src="/assets/box.png"/>
+                              Package {index+1} 
                             </span>
                             <span className="packages-table">
-                              {p.parcel_status}
+                            <b>{(p.distance_current_pickup/1000).toFixed(2)} km </b> Your location - Pickup 
                             </span>
-                            <span className="packages-table">{p.title}</span>
                             <span className="packages-table">
-                              {p.time_created}
+                            <b>{(p.distance_pickup_destination/1000).toFixed(2)} km </b> Pickup - Destination 
+                            </span>
+                            <span className="packages-table" style={{fontSize: "18px", display: "inline-block"}}>
+                            <b>{((p.distance_pickup_destination/1000) + 
+                                (p.distance_current_pickup/1000)).toFixed(2)} km </b> Combined 
+                            </span>
+                            <span style={{float: "right", fontSize: "20px"}}>
+                             <b> {(p.potential_earning / 100).toFixed(2)}€ </b>
                             </span>
                           </div>
                         );

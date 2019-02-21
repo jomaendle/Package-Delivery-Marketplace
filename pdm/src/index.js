@@ -14,6 +14,7 @@ import FinalPage from "./FinalPage";
 import DriverRoute from "./Driver/DriverRoute"
 import MyPackages from "./PackageInsert/MyPackages"
 import MyDrives from "./Driver/MyDrives"
+import Ratings from "./Ratings"
 import PackageDetails from "./PackageInsert/PackageDetails"
 import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import * as serviceWorker from './serviceWorker';
@@ -28,6 +29,7 @@ ReactDOM.render(
                 <Route exact path="/login" component={Login}></Route>
                 <Route exact path="/signup" component={SignUp}></Route>
                 <Route exact path="/profile" component={Profile}></Route>
+                <Route exact path="/ratings" component={Ratings}></Route>
                 <Route exact path="/profile-edit" component={ProfileEdit}></Route>
                 <Route exact path="/new-package" component={Package}></Route>
                 <Route exact path="/packages" component={MyPackages}></Route>

@@ -55,24 +55,24 @@ export class MyDrives extends Component {
   }
 
   getUserToken() {
-      if(firebase.auth().currentUser){
-          firebase
-            .auth()
-            .currentUser.getIdToken(/* forceRefresh */ true)
-            .then(
-              function(idToken) {
-                this.setState(
-                  {
-                    userToken: idToken
-                  },
-                  this.getUserPackages
-                );
-              }.bind(this)
-            )
-            .catch(function(error) {
-              // Handle error
-            });
-      }
+    if (firebase.auth().currentUser) {
+      firebase
+        .auth()
+        .currentUser.getIdToken(/* forceRefresh */ true)
+        .then(
+          function(idToken) {
+            this.setState(
+              {
+                userToken: idToken
+              },
+              this.getUserPackages
+            );
+          }.bind(this)
+        )
+        .catch(function(error) {
+          // Handle error
+        });
+    }
   }
 
   render() {
@@ -84,38 +84,38 @@ export class MyDrives extends Component {
           <AuthUserContext.Consumer>
             {authUser =>
               authUser ? (
-                <div className="tile" style={{padding: "25px", minHeight: "180px"}}>
+                <div
+                  className="tile"
+                  style={{ padding: "25px", minHeight: "180px" }}
+                >
                   <div id="my-packages-container">
                     <h2>Manage your deliveries.</h2>
+                    {this.state.drives.length > 0 ? (
+                      this.state.drives.map((p, index) => {
+                        return (
+                          <div className="listed-packages" key={index}>
+                            <span className="packages-table">{p}</span>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div id="no-available-div">
+                        No deliveries available. <br />
+                        You can start a new one by clicking{" "}
+                        <Link style={{ color: "#4e83c5" }} to="/driver">
+                          here
+                        </Link>
+                        .
+                      </div>
+                    )}
                     <Link to="/driver">
                       <button
+                        id="add-package-button"
                         className="buttons cta-button"
-                        style={{
-                          position: "absolute",
-                          top: "40px",
-                          right: "20px"
-                        }}
                       >
                         Add Delivery
                       </button>
                     </Link>
-
-                    {this.state.drives.length > 0 ? this.state.drives.map((p, index) => {
-                      return (
-                        <div
-                          className="listed-packages"
-                          key={index}
-                        >
-                          <span className="packages-table">{p}</span>
-
-                        </div>
-                      );
-                    }) : (
-                        <div style={{marginTop: "50px"}}>
-                            No deliveries available. <br/>
-                            You can start a new one by clicking <Link style={{ color: "#4e83c5"}} to="/driver">here</Link>.
-                        </div>
-                    )}
                   </div>
                 </div>
               ) : (

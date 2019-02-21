@@ -5,6 +5,7 @@ import "../App.css";
 import Map from "../components/Maps";
 import { withAuthentication } from "../Session";
 import { AuthUserContext } from "../Session";
+import firebase from "firebase";
 require("dotenv").config();
 
 export class Driver extends Component {
@@ -25,12 +26,29 @@ export class Driver extends Component {
   }
 
   componentWillMount() {
-    if (this.props.location.state) {
-      this.setState({
-        userToken: this.props.location.state.userToken
-      });
-    }
+    this.getUserToken();
   }
+
+  getUserToken = () => {
+    if(firebase.auth().currentUser){
+        firebase
+          .auth()
+          .currentUser.getIdToken(/* forceRefresh */ true)
+          .then(
+            function(idToken) {
+              this.setState(
+                {
+                  userToken: idToken
+                },
+                this.getUserPackages
+              );
+            }.bind(this)
+          )
+          .catch(function(error) {
+            // Handle error
+          });
+    }
+}
 
   componentDidMount() {
     if (this.props.location.state) {
@@ -56,11 +74,17 @@ export class Driver extends Component {
       if(this.state.currentLatLng.lat === 0 && this.state.currentLatLng.lng === 0){
           window.alert("Please select your location first");
         }else{
+
+        // Remove "km" from radius for further procedure
+        let radiusNum = this.state.radius.match(/\d/g);
+        radiusNum = radiusNum.join("");
+
         this.props.history.push({
             pathname: "/driver-select-packages",
             state: {
+                userToken: this.state.userToken,
                 currentLatLng: this.state.currentLatLng,
-                radius: this.state.radius
+                radius: radiusNum
             }
         });
     }
@@ -124,6 +148,7 @@ export class Driver extends Component {
                       </div>
                       <div style={{ marginTop: "20px" }}>
                         <button
+                        
                           className="buttons cta-button"
                           onMouseDown={this.handleSubmit}
                         >

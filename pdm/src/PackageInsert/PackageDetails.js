@@ -10,37 +10,52 @@ export class PackageDetail extends Component {
     super();
 
     this.state = {
-        userToken: ""
-    }
+      userToken: "",
+      packageID: "",
+      detailsObj: {},
+      detailsArr: []
+    };
 
     this.getUserPackages = this.getUserPackages.bind(this);
-    this.getUserToken = this.getUserToken.bind(this);
   }
 
   componentWillMount() {
-    this.getUserToken();
+    if (this.props.location.state) {
+      this.setState({
+        packageID: this.props.location.state.currentPackageID,
+        userToken: this.props.location.state.userToken
+      });
+    }
   }
 
   componentDidMount() {
-    this.getUserPackages()
+    this.getUserPackages();
+  }
+
+  createArrOfObj(arr) {
+    if (arr) {
+      var result = Object.keys(arr).map(function(key) {
+        return [key, arr[key]];
+      });
+      console.log(result);
+      this.setState({
+        detailsArr: result
+      });
+    }
+    console.log(this.state);
   }
 
   getUserPackages() {
-      //Wrap data into object
-
-      let pID;
-      if (this.props.location.state) {
-         pID = this.props.location.state.currentPackageID
-      }
-    console.log(this.state.userToken) 
+    //Wrap data into object
+    console.log(this.state.userToken);
 
     let data = JSON.stringify({
-        user_token: this.state.userToken,
-        action: "detail",
-        parcel_id: pID
+      user_token: this.state.userToken,
+      action: "detail",
+      parcel_id: this.state.packageID
     });
 
-    console.log(data)
+    console.log(data);
 
     //Send HTTP Post request
     axios
@@ -54,28 +69,12 @@ export class PackageDetail extends Component {
         }
       )
       .then(response => {
-        console.log(response);
-        this.setState({
-          packages: response.data.list
-        });
+        console.log(response.data.detail);
+        this.createArrOfObj(response.data.detail);
       })
       .catch(error => {
         console.log(error);
       });
-  }
-
-  getUserToken() {
-    var user = this.props.firebase.auth.currentUser;
-    if(user){
-        user.getIdToken(true).then(
-          function(idToken) {
-              this.setState({
-                  userToken: idToken
-              })
-            console.log(idToken);
-          }.bind(this)
-        );
-    }
   }
 
   render() {
@@ -89,10 +88,23 @@ export class PackageDetail extends Component {
               authUser ? (
                 <div
                   className="tile"
-                  style={{ minhHight: "180px", padding: "25px" }}
+                  style={{ minHeight: "180px", padding: "25px" }}
                 >
                   <div id="my-packages-container">
-                    <h2>View your package.</h2>
+                    <h2>View your package</h2>
+                    <img style={{
+                    width: "100px",
+                    }} alt="Shows an icon of a package" src="/assets/packing.png"/>
+                    {this.state.detailsArr
+                      ? this.state.detailsArr.map((key, index) => {
+                          return (
+                            <div key={index}>
+                              <div className="package-detail-attribute">{key[0]}:</div>
+                              <div>{key[1]}</div>
+                            </div>
+                          );
+                        })
+                      : ""}
                   </div>
                 </div>
               ) : (
