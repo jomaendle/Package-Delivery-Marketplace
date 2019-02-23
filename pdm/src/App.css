@@ -613,6 +613,38 @@ font-weight: 600;
   margin: 0 auto;
 }
 
+.route-details {
+  font-size: 14px;
+  display: block;
+  margin-bottom: 20px;
+  margin-left: 20px;
+  padding-bottom: 0;
+  margin-left: 85px;
+  line-height: 0;
+}
+
+/*
+Loading spinnger
+*/
+
+.loader {
+  margin: 0 auto;
+  border: 6px solid rgb(220, 220, 220);
+  border-top: 6px solid #353b48;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 0.795s cubic-bezier(0, 0, 1, 1.01) infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

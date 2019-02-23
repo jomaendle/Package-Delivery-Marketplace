@@ -63,6 +63,12 @@ export class Driver extends Component {
     }
   }
 
+  receiveAddress = (address) => {
+    this.setState({
+      formattedAddress: address
+    })
+  }
+
   updateRadiusLabel(e) {
     e.preventDefault();
     this.setState({
@@ -84,14 +90,14 @@ export class Driver extends Component {
             state: {
                 userToken: this.state.userToken,
                 currentLatLng: this.state.currentLatLng,
-                radius: radiusNum
+                radius: radiusNum,
+                formattedAddress: this.state.formattedAddress
             }
         });
     }
   };
 
   getDataFromMaps = data => {
-    console.log("received: " +data)
     this.setState({
       currentLatLng: data
     });
@@ -123,6 +129,7 @@ export class Driver extends Component {
                         </span>
                         <Map
                           callbackFromDriver={this.getDataFromMaps}
+                          getFormattedAddress={this.receiveAddress}
                           numberOfClicksAllowed ="1"
                         />
                         <p className="p-border">

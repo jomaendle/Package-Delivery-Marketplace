@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Navigation from "../components/Navigation";
 import Header from "../components/Header";
+import Map from "../components/Maps"
 import "../App.css";
 import axios from "axios";
 import { withAuthentication, AuthUserContext } from "../Session";
@@ -13,7 +14,9 @@ export class PackageDetail extends Component {
       userToken: "",
       packageID: "",
       detailsObj: {},
-      detailsArr: []
+      detailsArr: [],
+      loading: true,
+      package: null
     };
 
     this.getUserPackages = this.getUserPackages.bind(this);
@@ -27,9 +30,14 @@ export class PackageDetail extends Component {
       });
     }
   }
-
+  
   componentDidMount() {
     this.getUserPackages();
+    setTimeout(function(){ 
+      this.setState({
+        loading: false
+      }) 
+    }.bind(this), 1700);
   }
 
   createArrOfObj(arr) {
@@ -70,9 +78,16 @@ export class PackageDetail extends Component {
       )
       .then(response => {
         console.log(response.data.detail);
+        this.setState({
+          loading: false,
+          package: response.data.detail
+        })
         this.createArrOfObj(response.data.detail);
       })
       .catch(error => {
+        this.setState({
+          loading: false
+        })
         console.log(error);
       });
   }
@@ -92,19 +107,36 @@ export class PackageDetail extends Component {
                 >
                   <div id="my-packages-container">
                     <h2>View your package</h2>
-                    <img style={{
-                    width: "100px",
-                    }} alt="Shows an icon of a package" src="/assets/packing.png"/>
-                    {this.state.detailsArr
-                      ? this.state.detailsArr.map((key, index) => {
-                          return (
-                            <div key={index}>
-                              <div className="package-detail-attribute">{key[0]}:</div>
-                              <div>{key[1]}</div>
+                    <img
+                      style={{
+                        width: "100px"
+                      }}
+                      alt="Shows an icon of a package"
+                      src="/assets/packing.png"
+                    />
+                    {this.state.detailsArr.length > 0 ? (
+                      this.state.detailsArr.map((key, index) => {
+                        return (
+                          <div key={index}>
+                            <div className="package-detail-attribute">
+                              {key[0]}:
                             </div>
-                          );
-                        })
-                      : ""}
+                            <div>{(typeof key[1] === 'object') ? key[1].lat.toFixed(5) + ", " + 
+                            key[1].lng.toFixed(5) : key[1] }</div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div>
+                        {this.state.loading ? (
+                          <div className="loader" />
+                        ) : (
+                          <div>
+                            Package information are currently unavailable. Please check later again.
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (

@@ -14,7 +14,8 @@ export class Package extends Component {
     this.state = {
       packages: [],
       selectedPackages: [],
-      userToken: null
+      userToken: null,
+      loading: true
     };
     this.handlePackageClick = this.handlePackageClick.bind(this);
     this.ReturnToPreviousPage = this.ReturnToPreviousPage.bind(this);
@@ -27,14 +28,19 @@ export class Package extends Component {
         radius: this.props.location.state.radius,
         userToken: this.props.location.state.userToken,
         currentLatLng: this.props.location.state.currentLatLng,
+        formattedAddress: this.props.location.state.formattedAddress
       })
       this.getDriverPackages();
+      setTimeout(function(){ 
+        this.setState({
+          loading: false
+        }) 
+      }.bind(this), 3500);
     }
   }
 
   getDriverPackages = () => {
     // API Call to fetch the parcels which fit for the driver
-    console.log(this.props.location.state);
     if (
       this.props.location.state.currentLatLng &&
       this.props.location.state.userToken &&
@@ -64,10 +70,14 @@ export class Package extends Component {
         .then(response => {
           console.log(response);
           this.setState({
-            packages: response.data
+            packages: response.data,
+            loading: false
           });
         })
         .catch(error => {
+          this.setState( {
+            loading: false
+          })
           console.log(error);
         });
     }
@@ -75,7 +85,9 @@ export class Package extends Component {
 
   handlePackageClick = (e, index) => {   
       //Add new package to currently selected packages.
-      this.state.selectedPackages.push(this.state.packages[index]);
+      if(!this.state.selectedPackages.includes(this.state.packages[index])){
+        this.state.selectedPackages.push(this.state.packages[index]);
+      }
       if(e.target.tagName === "DIV"){
         e.target.className = "listed-packages-clicked";
       }else if(e.target.tagName === "SPAN" && e.target.parentElement.tagName === "DIV"){
@@ -100,7 +112,9 @@ export class Package extends Component {
         pathname: "/driver-confirm",
         state: {
           prevState: this.props.location.state,
-          selectedPackages: this.state.selectedPackages
+          selectedPackages: this.state.selectedPackages,
+          userToken: this.state.userToken,
+          formattedAddress: this.state.formattedAddress
         }
       });
     }
@@ -118,6 +132,7 @@ export class Package extends Component {
                 <div className="tile">
                   <h2>Select one or more packages to proceed.</h2>
                   <div>
+                    
                     {this.state.packages.length !== 0 ? (
                       this.state.packages.map((p, index) => {
                         return (
@@ -153,8 +168,14 @@ export class Package extends Component {
                       })
                     ) : (
                       <div style={{ marginBottom: "25px" }}>
-                        There are no packages available right now. Please check
-                        later again.
+                      {this.state.loading 
+                      ? (<div className="loader"></div>)
+                      : (
+                        <div>
+                          There are no packages available right now. Please check
+                          later again.
+                        </div>
+                      ) }
                       </div>
                     )}
                   </div>

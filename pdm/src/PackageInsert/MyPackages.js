@@ -13,7 +13,8 @@ export class MyPackages extends Component {
 
     this.state = {
       packages: [],
-      userToken: null
+      userToken: null,
+      loading: true
     };
 
     this.getUserPackages = this.getUserPackages.bind(this);
@@ -22,6 +23,11 @@ export class MyPackages extends Component {
 
   componentWillMount() {
     this.getUserToken();
+    setTimeout(function(){ 
+      this.setState({
+        loading: false
+      }) 
+    }.bind(this), 1700);
   }
 
   getUserPackages() {
@@ -46,10 +52,14 @@ export class MyPackages extends Component {
       .then(response => {
         console.log(response.data.list);
         this.setState({
-          packages: response.data.list
+          packages: response.data.list,
+          loading: false
         });
       })
       .catch(error => {
+        this.setState({
+          loading: false
+        })
         console.log(error);
       });
   }
@@ -131,8 +141,14 @@ export class MyPackages extends Component {
                     
                     : (
                       <div id="no-available-div">
-                          No packages available. <br/>
-                          You can insert a new one by clicking <Link style={{ color: "#4e83c5"}} to="/new-package">here</Link>.
+                          {this.state.loading 
+                          ? (<div className="loader"></div>)
+                          : (
+                            <div>
+                              No packages available. <br/>
+                              You can insert a new one by clicking <Link style={{ color: "#4e83c5"}} to="/new-package">here</Link>.
+                            </div>
+                          ) }
                       </div>
                     )}
                     <Link to="/new-package">

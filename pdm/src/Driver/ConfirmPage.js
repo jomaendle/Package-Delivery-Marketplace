@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Navigation from "../components/Navigation";
 import Header from "../components/Header";
 import "../App.css";
+import axios from "axios";
 import { withAuthentication, AuthUserContext } from "../Session";
 require("dotenv").config();
 
@@ -15,7 +16,9 @@ export class ConfirmationPage extends Component {
       currentLatLng: {
         lat: "",
         lng: ""
-      }
+      },
+      waypoints: [],
+      destination: ""
     };
     this.ReturnToPreviousPage = this.ReturnToPreviousPage.bind(this);
     this.continueToFinalPage = this.continueToFinalPage.bind(this);
@@ -26,10 +29,19 @@ export class ConfirmationPage extends Component {
       this.setState({
         selectedPackages: this.props.location.state.selectedPackages,
         radius: this.props.location.state.prevState.radius,
-        currentLatLng: this.props.location.state.prevState.currentLatLng
+        currentLatLng: this.props.location.state.prevState.currentLatLng,
+        userToken: this.props.location.state.userToken,
+        formattedAddress: this.props.location.state.formattedAddress
       });
     }
-    console.log(this.props.location.state);
+  }
+
+  componentDidMount() {
+    if(this.state.selectedPackages.length > 0){
+      this.state.selectedPackages.map((entry) => {
+        this.getUserPackages(entry.parcel_id)
+      })
+    }
   }
 
   ReturnToPreviousPage() {
@@ -41,12 +53,64 @@ export class ConfirmationPage extends Component {
     });
   }
 
+  addDistanceCurrentToPickUpToWaypoint(){
+    for(let i =0; i<this.state.waypoints.length; i++){
+      for(let j =0; j<this.state.selectedPackages.length; j++){
+        if(this.state.selectedPackages[j].parcel_id === this.state.waypoints[i].parcel_id){
+          this.state.waypoints[i].distance_current_pickup = this.state.selectedPackages[j].distance_current_pickup;
+          console.log("distance was set.");
+        }
+      }
+    }
+  }
+
+  getUserPackages(packageID) {
+    //Wrap data into object
+
+    let data = JSON.stringify({
+      user_token: this.state.userToken,
+      action: "detail",
+      parcel_id: packageID
+    });
+
+    //Send HTTP Post request
+    axios
+      .post(
+        "https://us-central1-studienarbeit.cloudfunctions.net/parcel",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      )
+      .then(response => {
+        console.log(response)
+        this.state.waypoints.push({
+          coords: response.data.detail.pickup_location,
+          destination: response.data.detail.destination_location,
+          parcel_id: packageID,
+          distance_current_pickup: ""
+        });
+        this.setState({
+          destination: response.data.detail.destination_location
+        })
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
   continueToFinalPage() {
+    this.addDistanceCurrentToPickUpToWaypoint();
     this.props.history.push({
       pathname: "/driver-route",
       state: {
         selectedPackages: this.state.selectedPackages,
-        currentLatLng: this.state.currentLatLng
+        currentLatLng: this.state.currentLatLng,
+        userToken: this.state.userToken,
+        waypoints: this.state.waypoints,
+        destination: this.state.destination
       }
     });
   }
@@ -64,21 +128,20 @@ export class ConfirmationPage extends Component {
                   <div className="tile">
                     <h2>Congrats! Check your information and submit</h2>
                     <div>
-                      <p style={{ marginBottom: "45px" }}>
+                      <p style={{ marginBottom: "30px" }}>
                         <span style={{ fontWeight: 600 }}>
                           Your selected radius is:
-                        </span>{" "}
-                        {this.state.radius}
+                        </span><br/>
+                        {this.state.radius} km
                       </p>
-                      <p style={{ marginBottom: "45px" }}>
+                      <p style={{ marginBottom: "30x" }}>
                         <span style={{ fontWeight: 600 }}>
-                          Your current position is:
-                        </span>{" "}
-                        {this.state.currentLatLng.address}
+                          Your current location is:
+                        </span> <br/>
+                        {this.state.formattedAddress} <br/>
                         {this.state.currentLatLng.lat.toFixed(4)} ,{" "}
                         {this.state.currentLatLng.lng.toFixed(4)}
                       </p>
-
                       <p>
                         <span style={{ fontWeight: 600 }}>
                           You selected the following packages to deliver:
