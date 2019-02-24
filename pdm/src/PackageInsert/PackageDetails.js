@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import Navigation from "../components/Navigation";
 import Header from "../components/Header";
-import Map from "../components/Maps"
 import "../App.css";
-import axios from "axios";
+import {sendPostRequest} from "../API/Requests";
 import { withAuthentication, AuthUserContext } from "../Session";
 
 export class PackageDetail extends Component {
@@ -53,7 +52,7 @@ export class PackageDetail extends Component {
     console.log(this.state);
   }
 
-  getUserPackages() {
+  async getUserPackages() {
     //Wrap data into object
     console.log(this.state.userToken);
 
@@ -64,32 +63,20 @@ export class PackageDetail extends Component {
     });
 
     console.log(data);
+    let res = await sendPostRequest("parcel", data);
 
-    //Send HTTP Post request
-    axios
-      .post(
-        "https://us-central1-studienarbeit.cloudfunctions.net/parcel",
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }
-      )
-      .then(response => {
-        console.log(response.data.detail);
-        this.setState({
-          loading: false,
-          package: response.data.detail
-        })
-        this.createArrOfObj(response.data.detail);
+    if(res){
+      this.setState({
+        loading: false,
+        package: res.data.detail
       })
-      .catch(error => {
-        this.setState({
-          loading: false
-        })
-        console.log(error);
-      });
+      this.createArrOfObj(res.data.detail);
+    }else{
+      this.setState({
+        loading: false
+      })
+      console.log("Error fetching package data.");
+    }
   }
 
   render() {

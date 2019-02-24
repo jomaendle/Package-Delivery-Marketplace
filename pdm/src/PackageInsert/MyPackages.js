@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Navigation from "../components/Navigation";
 import Header from "../components/Header";
 import "../App.css";
-import axios from "axios";
+import {sendPostRequest} from "../API/Requests"
 import firebase from "firebase";
 import { Link } from "react-router-dom";
 import { withAuthentication, AuthUserContext } from "../Session";
@@ -27,10 +27,10 @@ export class MyPackages extends Component {
       this.setState({
         loading: false
       }) 
-    }.bind(this), 1700);
+    }.bind(this), 4000);
   }
 
-  getUserPackages() {
+  async getUserPackages() {
     //Wrap data into object
     let data = JSON.stringify({
       action: "list",
@@ -38,30 +38,19 @@ export class MyPackages extends Component {
       parcel_id: ""
     });
     
-    //Send HTTP Post request
-    axios
-      .post(
-        "https://us-central1-studienarbeit.cloudfunctions.net/parcel",
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }
-      )
-      .then(response => {
-        console.log(response.data.list);
-        this.setState({
-          packages: response.data.list,
-          loading: false
-        });
-      })
-      .catch(error => {
-        this.setState({
-          loading: false
-        })
-        console.log(error);
+    let response = await sendPostRequest("parcel", data);
+
+    if(response){
+      this.setState({
+        packages: response.data.list,
+        loading: false
       });
+    }else{
+      this.setState({
+        loading: false
+      })
+      console.log("Error fetching user packages.")
+    }
   }
 
   getUserToken() {
@@ -94,24 +83,6 @@ export class MyPackages extends Component {
       }
     });
   }
-
-  /*removePackage(e, p_id) {
-    if (this.state.packages.length > 0) {
-      e.preventDefault();
-      if (e.target.parentElement.id !== "my-packages-container") {
-        e.target.parentElement.classList.add("hidden");
-        setTimeout(
-          function() {
-            let filteredArray = this.state.packages.filter(
-              item => item.parcel_id !== p_id
-            );
-            this.setState({ packages: filteredArray });
-          }.bind(this),
-          1150
-        );
-      }
-    }
-  }*/
 
   render() {
     return (

@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Navigation from "../components/Navigation";
 import Header from "../components/Header";
 import "../App.css";
-import axios from "axios";
+import { sendPostRequest } from "../API/Requests";
 import firebase from "firebase";
 import { Link } from "react-router-dom";
 import { withAuthentication, AuthUserContext } from "../Session";
@@ -24,34 +24,23 @@ export class MyDrives extends Component {
     this.getUserToken();
   }
 
-  getUserDrives() {
+  async getUserDrives() {
     //Wrap data into object
 
     let data = JSON.stringify({
-      action: "list",
-      user_token: this.state.userToken,
-      parcel_id: ""
+      user_token: this.state.userToken
     });
+
     //Send HTTP Post request
-    axios
-      .post(
-        "https://us-central1-studienarbeit.cloudfunctions.net/parcel",
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }
-      )
-      .then(response => {
-        console.log(response.data.list);
+    let response = await sendPostRequest("pd_job", data);
+    if(response !== null){
+      console.log(response.data.list);
         this.setState({
-          drives: response.data.list
-        });
-      })
-      .catch(error => {
-        console.log(error);
+          drives: response.data
       });
+    }else{
+      console.log("Error fetching user drives");
+    }
   }
 
   getUserToken() {

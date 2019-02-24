@@ -20,6 +20,7 @@ export class FinalPage extends Component {
       this.setState({
         userType: this.props.location.state.userType,
         package: this.props.location.state.package,
+        success: this.props.location.state.success,
         response: this.props.location.state.response
           ? this.props.location.state.response
           : ""
@@ -28,14 +29,9 @@ export class FinalPage extends Component {
   }
 
   render() {
-    let data;
-    if (this.state.userType === "driver") {
-      data = (
-        <div>
-          <h2>Congrats!</h2>
-        </div>
-      );
-    } else if (this.state.userType === "customer") {
+    let data = this.state.contentMessage;
+  
+    if (this.state.success === true) {
       data = (
         <div>
           <h2>Congrats! Your package was successfully added.</h2>
@@ -45,6 +41,15 @@ export class FinalPage extends Component {
           </div>
         </div>
       );
+    }else if(this.state.success === false){
+      data = (
+        <div>
+          <h2>Something went wrong :(</h2>
+          <div>
+           We're sorry, but your package couldn't be transmitted to our servers. Please check your internet connection an try again.
+          </div>
+        </div>
+      )
     }
     return (
       <div className="App">

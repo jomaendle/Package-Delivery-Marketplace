@@ -2,9 +2,8 @@ import React, { Component } from "react";
 import Navigation from "../components/Navigation";
 import Header from "../components/Header";
 import "../App.css";
-import axios from "axios";
+import { sendPostRequest } from "../API/Requests";
 import { withAuthentication, AuthUserContext } from "../Session";
-require("dotenv").config();
 
 export class ConfirmationPage extends Component {
   constructor() {
@@ -64,7 +63,24 @@ export class ConfirmationPage extends Component {
     }
   }
 
-  getUserPackages(packageID) {
+  async sendSelectedPackages(){
+    let allPackageIDs = [];
+    this.state.selectedPackages.map((key, index) => {
+        allPackageIDs.push(key.parcel_id)
+    })
+
+    let data = JSON.stringify({
+      user_token: this.state.userToken,
+      packages: allPackageIDs
+    });
+
+    let response = await sendPostRequest("pd_parcel_selection", data);
+
+    console.log(response)
+  }
+
+
+  async getUserPackages(packageID) {
     //Wrap data into object
 
     let data = JSON.stringify({
@@ -73,36 +89,30 @@ export class ConfirmationPage extends Component {
       parcel_id: packageID
     });
 
-    //Send HTTP Post request
-    axios
-      .post(
-        "https://us-central1-studienarbeit.cloudfunctions.net/parcel",
-        data,
-        {
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }
-      )
-      .then(response => {
-        console.log(response)
-        this.state.waypoints.push({
-          coords: response.data.detail.pickup_location,
-          destination: response.data.detail.destination_location,
-          parcel_id: packageID,
-          distance_current_pickup: ""
-        });
-        this.setState({
-          destination: response.data.detail.destination_location
-        })
-      })
-      .catch(error => {
-        console.log(error);
+    let response = await sendPostRequest("parcel", data)
+    if(response !== null){
+      this.state.waypoints.push({
+        coords: response.data.detail.pickup_location,
+        destination: response.data.detail.destination_location,
+        parcel_id: packageID,
+        distance_current_pickup: ""
       });
+      this.setState({
+        destination: response.data.detail.destination_location
+      })
+    }else{
+      console.log("Error fetching data")
+    }
+    //Send HTTP Post request
+
   }
 
   continueToFinalPage() {
-    this.addDistanceCurrentToPickUpToWaypoint();
+    if(this.state.selectedPackages.length > 1){
+      this.sendSelectedPackages();
+    }else{
+      this.addDistanceCurrentToPickUpToWaypoint();
+    }
     this.props.history.push({
       pathname: "/driver-route",
       state: {

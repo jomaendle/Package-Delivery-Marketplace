@@ -3,6 +3,7 @@
 import React, { Component } from "react";
 import "../App.css";
 import { withAuthentication } from "../Session";
+import {sendPostRequest} from "../API/Requests"
 import Script from "react-load-script";
 require("dotenv").config();
 
@@ -54,10 +55,6 @@ export class Maps extends Component {
 
   componentWillMount() {
     //this.getGeoLocation();
-    var PromiseWorker = require('promise-worker');
-    var worker = new Worker('./worker.js');
-    let promiseWorker = new PromiseWorker(worker);
-
 
     if (this.props.numberOfClicksAllowed) {
       this.setState({
@@ -270,220 +267,18 @@ export class Maps extends Component {
     })
   }
 
-  calculateAndDisplayRoute = () => {
+  async calculateAndDisplayRoute() {
     if (this.state.waypoints.length > 1) {
 
-      // Compare distance_current_pickup from all packages and select lowest one
-     
-      let wayPts = [ ...this.state.waypointsDetails];
-      let openPackages = [ ...this.state.waypointsDetails];
-      
-      // Set set open Packages with all selected packages:
-      let pickedUpPackages = [];
-      let index = 0;
+      let data = JSON.stringify({
+        user_token: this.state.userToken,
+        current_location: this.state.startLocation
+      });
 
-      (async function loop () {
-        while (openPackages.length > 0 ||  pickedUpPackages.length > 0) {
-            await new Promise(resolve => {
-              setTimeout(resolve, Math.random() * 1000);
-            });
-            
-            let minPackages = {
-              min: Number.MAX_VALUE,
-              packagedID: "",
-              index: 0
-            };
-            if (index === 0) {
-              for (let i = 0; i < wayPts.length; i++) {
-                console.log(wayPts[i]);
-                if (wayPts[i].distance_current_pickup < minPackages.min) {
-                  minPackages.min = wayPts[i].distance_current_pickup;
-                  minPackages.packagedID = wayPts[i].parcel_id;
-                  minPackages.index = i;
-                }
-              }
+      let response = await sendPostRequest("pd_status", data);
 
-              console.log("OP length "+openPackages.length)
-              console.log("PU length "+pickedUpPackages.length)
-
-              // Calculate route this point
-              let origin = this.state.startLocation;
-              let destination = wayPts[minPackages.index].coords;
-              this.lastDestination = wayPts[minPackages.index].coords;
-              this.drawRouteOnMaps(origin, destination, null, true);
-              
-              this.setState({
-                currentPackageState: minPackages.index + ": " +origin + ", " + destination
-              })
-              // remove this point from openPackages and add to pickedUpPackages
-      
-              if(openPackages.length > 0 ){
-                openPackages.splice(minPackages.index, 1);
-              }
-              pickedUpPackages.push(wayPts[minPackages.index]);
-              
-              
-            } else {
-              if(this.state.pickedUpClicked){
-
-                this.setState({
-                  startLocation: this.lastDestination,
-                  pickedUpClicked: false
-                })
-                console.log("cliked")
-                // Check, whether route from open packages (distance_current_pickup) or pickedUpPAckages is closer
-                let distances = [];
-                    
-                console.log("OP length "+openPackages.length)
-
-                // Get all distances for Open Packages
-                for(let i =0; i<openPackages.length; i++){
-                  let distance = await this.drawRouteOnMaps(this.state.startLocation, openPackages[i].coords, null, false)
-                  distances.push({
-                    distance: distance,
-                    package: openPackages[i]
-                  })
-                }
-      
-                console.log("PU length "+pickedUpPackages.length)
-                
-                // Get all distances for Pickedup Packages
-                for(let i =0; i<pickedUpPackages.length; i++){
-                  let distance = await this.drawRouteOnMaps(this.state.startLocation, openPackages[i].destination, null, false)
-                  distances.push({
-                    distance: distance,
-                    package: pickedUpPackages[i]
-                  })
-                }
-                
-                for(let i =0; i<distances.length; i++){
-                  if(distances[i].distance < minPackages.min){
-                    minPackages.min = distances[i].distance;
-                    minPackages.packagedID = distances[i].package.parcel_id;
-                    minPackages.index = i;
-                  }
-                }
-                
-                console.log(distances)
-                console.log(minPackages);
-                console.log(wayPts)
-                 // Calculate route this point
-                let origin = this.state.startLocation;
-                let destination = wayPts[minPackages.index].destination;
-                this.lastDestination = destination;
-                console.log(origin, destination )
-                this.drawRouteOnMaps(origin, destination, null, true);
-                this.setState({
-                  currentPackageState: minPackages.index + ": " +origin + ", " + destination
-                })
-                // remove this point from openPackages and add to pickedUpPackages
-        
-                if(openPackages.length > 0 ){
-                  openPackages.splice(minPackages.index, 1);
-                }
-                pickedUpPackages.push(wayPts[minPackages.index]);
-                
-              }
-            }
-            index++;
-          }
-      }.bind(this))();
-
-/*      while (openPackages.length > 0) {
-        let minPackages = {
-          min: Number.MAX_VALUE,
-          packagedID: "",
-          index: 0
-        };
-        if (index === 0) {
-          for (let i = 0; i < wayPts.length; i++) {
-            console.log(wayPts[i]);
-            if (wayPts[i].distance_current_pickup < minPackages.min) {
-              minPackages.min = wayPts[i].distance_current_pickup;
-              minPackages.packagedID = wayPts[i].parcel_id;
-              minPackages.index = i;
-            }
-          }
-          console.log(openPackages)
-        } else {
-          if(this.state.pickedUpClicked){
-            console.log("cliked")
-            this.setState({
-              pickedUpClicked: false
-            })
-            // Check, whether route from open packages (distance_current_pickup) or pickedUpPAckages is closer
-            let distances = [];
-                
-            // Get all distances for Open Packages
-            for(let i =0; i<openPackages.length; i++){
-              let distance = this.drawRouteOnMaps(this.state.startLocation, openPackages[i].coords, null, false)
-              distances.push({
-                distance: distance,
-                package: openPackages[i]
-              })
-            }
+      console.log(response)
   
-            // Get all distances for Pickedup Packages
-            for(let i =0; i<pickedUpPackages.length; i++){
-              let distance = this.drawRouteOnMaps(this.state.startLocation, openPackages[i].destination, null, false)
-              distances.push({
-                distance: distance,
-                package: pickedUpPackages[i]
-              })
-            }
-  
-            for(let i =0; i<distances.length; i++){
-              if(distances[i].distance < minPackages.min){
-                minPackages.min = distances[i].distance;
-                minPackages.packagedID = distances[i].package.parcel_id;
-                minPackages.index = i;
-              }
-            }
-          }
-        }
-
-        // Calculate route this point
-        let origin = this.state.startLocation;
-        let destination = wayPts[minPackages.index].coords;
-        this.drawRouteOnMaps(origin, destination, null, true);
-
-        // remove this point from openPackages and add to pickedUpPackages
-
-        console.log(openPackages.splice(minPackages.index, 1));
-        console.log(pickedUpPackages.push(wayPts[minPackages.index]));
-        index++;
-      }*/
-      console.log("Terminated while loop in calc&Displ")
-      //Save package with shortest route and its id
-
-      // Set current Location to new point
-
-      /*
-      this.setState({
-        startLocation: ""
-      })
-     
-
-      */
-
-      // }
-      // set openPackages ={contains all Pickup packages}
-      // set pickedUpPackages = {}
-      // while(openPackages != empty)
-      //  Calculate shortest route from driver to one of the openPackages (pickUp1: p1).
-      //  pickedUpPackages = {p1}
-      //  Remove p1 from list of openPackages
-      //  Check, whether element from pickedUpPackages closer than element from openPackages
-      //  if(PickedUpPackages p)
-      //      calculate route to (p).
-      //     Remove element p from pickedUpPackages
-      //  else if (openPackages p)
-      //      Remove element from openPackages
-      //     Add element to PickedUpPackages
-      //     Calculate route to p
-      //  If (pickedUp != empty)
-      //    Calcuclate route to all pickedUp Packages
-      // Terminate when pickUps == empty && destinations == empty
     } else {
       // Aktueller Code
       if (this.state.directionsService && this.state.directionsDisplay) {
@@ -696,12 +491,6 @@ export class Maps extends Component {
     );
   }
 
-  handleDeliveredButtonClick =() => {
-    this.setState({
-      pickedUpClicked: true
-    })
-  }
-
   render() {
     let googleMapURL =
       "https://maps.googleapis.com/maps/api/js?libraries=places&key=" +
@@ -727,7 +516,7 @@ export class Maps extends Component {
               <div style={{ float: "left" }}>
                 <img
                   style={{
-                    width: "42px",
+                    width: "38px",
                     marginLeft: "28px",
                     position: "relative",
                     top: "16px"
@@ -751,7 +540,7 @@ export class Maps extends Component {
               <div style={{ marginLeft: "20px", overflow: "hidden" }}>
                 <img
                   style={{
-                    width: "42px",
+                    width: "38px",
                     marginLeft: "28px",
                     position: "relative",
                     top: "20px"
@@ -774,7 +563,6 @@ export class Maps extends Component {
                 <div>
                   {this.state.currentPackageState}
                 </div>
-                <button onClick={this.handleDeliveredButtonClick}>Delivered</button>
               </div>
             </div>
           ) : (

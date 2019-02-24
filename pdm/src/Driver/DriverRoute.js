@@ -5,7 +5,6 @@ import "../App.css";
 import Map from "../components/Maps";
 import { withAuthentication } from "../Session";
 import { AuthUserContext } from "../Session";
-require("dotenv").config();
 
 export class Driver extends Component {
   constructor() {

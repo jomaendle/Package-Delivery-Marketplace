@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import axios from "axios";
+import {sendPostRequest} from "../API/Requests"
 import Navigation from "../components/Navigation";
 import Header from "../components/Header";
 import Map from "../components/Maps";
@@ -70,7 +70,7 @@ export class Package extends Component {
     });
   }
 
-  handleSubmit = e => {
+  handleSubmit = async (e) => {
     e.preventDefault();
     if (this.state.mapPositionArray.length === 2) {
       const size = this.sizeRef.current.value;
@@ -107,23 +107,13 @@ export class Package extends Component {
         destination_location: destination
       })
 
-      console.log(data)
-      //Send HTTP Post request
-      axios.post("https://us-central1-studienarbeit.cloudfunctions.net/parcel", data, {
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => {
-          console.log(response);
-        })
-        .catch(error => {
-          console.log(startLocation, destination);
-          console.log(error);
-        });
-
-        //Redirect to final page
-        this.continueToFinalPage(data, res);
+      let response = await sendPostRequest("parcel", data)
+      if(response){
+        this.continueToFinalPage(data, res, true);
+        console.log(response)
+      }else {
+        this.continueToFinalPage(data, res, false);
+      }
     } else {
       alert("Please select the start and final destination of the package. ");
     }
@@ -185,13 +175,14 @@ export class Package extends Component {
     });
   }
 
-  continueToFinalPage(currentPackage, res) {
+  continueToFinalPage(currentPackage, res, boolean) {
     this.props.history.push({
       pathname: "/final",
       state: {
         userType: "customer",
         package: currentPackage,
-        response: res
+        response: res,
+        success: boolean
       }
     });
   }

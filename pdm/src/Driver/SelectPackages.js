@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Navigation from "../components/Navigation";
 import Header from "../components/Header";
-import axios from "axios";
+import { sendPostRequest } from "../API/Requests";
 import "../App.css";
 import { withAuthentication, AuthUserContext } from "../Session";
 require("dotenv").config();
@@ -20,26 +20,30 @@ export class Package extends Component {
     this.handlePackageClick = this.handlePackageClick.bind(this);
     this.ReturnToPreviousPage = this.ReturnToPreviousPage.bind(this);
     this.ContinueToConfirmPage = this.ContinueToConfirmPage.bind(this);
+    this.getDriverPackages = this.getDriverPackages.bind(this);
   }
 
   componentWillMount() {
-    if(this.props.location.state){
+    if (this.props.location.state) {
       this.setState({
         radius: this.props.location.state.radius,
         userToken: this.props.location.state.userToken,
         currentLatLng: this.props.location.state.currentLatLng,
         formattedAddress: this.props.location.state.formattedAddress
-      })
+      });
       this.getDriverPackages();
-      setTimeout(function(){ 
-        this.setState({
-          loading: false
-        }) 
-      }.bind(this), 3500);
+      setTimeout(
+        function() {
+          this.setState({
+            loading: false
+          });
+        }.bind(this),
+        3500
+      );
     }
   }
 
-  getDriverPackages = () => {
+  async getDriverPackages() {
     // API Call to fetch the parcels which fit for the driver
     if (
       this.props.location.state.currentLatLng &&
@@ -48,51 +52,38 @@ export class Package extends Component {
     ) {
       //Wrap data into object
       let data = JSON.stringify({
-        driver_position:
-          this.props.location.state.currentLatLng.lat +
-          "," +
-          this.props.location.state.currentLatLng.lng,
+        driver_position: this.props.location.state.currentLatLng,
         radius: this.props.location.state.radius,
         user_token: this.props.location.state.userToken
       });
 
-      //Send HTTP Post request
-      axios
-        .post(
-          "https://us-central1-studienarbeit.cloudfunctions.net/pd_suggestions",
-          data,
-          {
-            headers: {
-              "Content-Type": "application/json"
-            }
-          }
-        )
-        .then(response => {
-          console.log(response);
-          this.setState({
-            packages: response.data,
-            loading: false
-          });
-        })
-        .catch(error => {
-          this.setState( {
-            loading: false
-          })
-          console.log(error);
+      let response = await sendPostRequest("pd_suggestions", data);
+      if (response !== null) {
+        this.setState({
+          packages: response.data,
+          loading: false
         });
+      } else {
+        this.setState({
+          loading: false
+        });
+      }
     }
-  };
+  }
 
-  handlePackageClick = (e, index) => {   
-      //Add new package to currently selected packages.
-      if(!this.state.selectedPackages.includes(this.state.packages[index])){
-        this.state.selectedPackages.push(this.state.packages[index]);
-      }
-      if(e.target.tagName === "DIV"){
-        e.target.className = "listed-packages-clicked";
-      }else if(e.target.tagName === "SPAN" && e.target.parentElement.tagName === "DIV"){
-        e.target.parentElement.className = "listed-packages-clicked";
-      }
+  handlePackageClick = (e, index) => {
+    //Add new package to currently selected packages.
+    if (!this.state.selectedPackages.includes(this.state.packages[index])) {
+      this.state.selectedPackages.push(this.state.packages[index]);
+    }
+    if (e.target.tagName === "DIV") {
+      e.target.className = "listed-packages-clicked";
+    } else if (
+      e.target.tagName === "SPAN" &&
+      e.target.parentElement.tagName === "DIV"
+    ) {
+      e.target.parentElement.className = "listed-packages-clicked";
+    }
   };
 
   ReturnToPreviousPage() {
@@ -132,7 +123,6 @@ export class Package extends Component {
                 <div className="tile">
                   <h2>Select one or more packages to proceed.</h2>
                   <div>
-                    
                     {this.state.packages.length !== 0 ? (
                       this.state.packages.map((p, index) => {
                         return (
@@ -141,41 +131,70 @@ export class Package extends Component {
                             key={index}
                             onMouseDown={e => this.handlePackageClick(e, index)}
                           >
-                            <span id="packages-table-heading" className="packages-table">
-                              <img style={{
-                              width: "28px",
-                              top: "8px",
-                              position: "relative",
-                              marginRight: "8px"
-                              }} alt="Shows an a route with multiple waypoints." src="/assets/box.png"/>
-                              Package {index+1} 
+                            <span
+                              id="packages-table-heading"
+                              className="packages-table"
+                            >
+                              <img
+                                style={{
+                                  width: "28px",
+                                  top: "8px",
+                                  position: "relative",
+                                  marginRight: "8px"
+                                }}
+                                alt="Shows an a route with multiple waypoints."
+                                src="/assets/box.png"
+                              />
+                              Package {index + 1}
                             </span>
                             <span className="packages-table">
-                            <b>{(p.distance_current_pickup/1000).toFixed(2)} km </b> Your location - Pickup 
+                              <b>
+                                {(p.distance_current_pickup / 1000).toFixed(2)}{" "}
+                                km{" "}
+                              </b>{" "}
+                              Your location - Pickup
                             </span>
                             <span className="packages-table">
-                            <b>{(p.distance_pickup_destination/1000).toFixed(2)} km </b> Pickup - Destination 
+                              <b>
+                                {(p.distance_pickup_destination / 1000).toFixed(
+                                  2
+                                )}{" "}
+                                km{" "}
+                              </b>{" "}
+                              Pickup - Destination
                             </span>
-                            <span className="packages-table" style={{fontSize: "18px", display: "inline-block"}}>
-                            <b>{((p.distance_pickup_destination/1000) + 
-                                (p.distance_current_pickup/1000)).toFixed(2)} km </b> Combined 
+                            <span
+                              className="packages-table"
+                              style={{
+                                fontSize: "18px",
+                                display: "inline-block"
+                              }}
+                            >
+                              <b>
+                                {(
+                                  p.distance_pickup_destination / 1000 +
+                                  p.distance_current_pickup / 1000
+                                ).toFixed(2)}{" "}
+                                km{" "}
+                              </b>{" "}
+                              Combined
                             </span>
-                            <span style={{float: "right", fontSize: "20px"}}>
-                             <b> {(p.potential_earning / 100).toFixed(2)}€ </b>
+                            <span style={{ float: "right", fontSize: "20px" }}>
+                              <b> {p.potential_earning.toFixed(2)}€ </b>
                             </span>
                           </div>
                         );
                       })
                     ) : (
                       <div style={{ marginBottom: "25px" }}>
-                      {this.state.loading 
-                      ? (<div className="loader"></div>)
-                      : (
-                        <div>
-                          There are no packages available right now. Please check
-                          later again.
-                        </div>
-                      ) }
+                        {this.state.loading ? (
+                          <div className="loader" />
+                        ) : (
+                          <div>
+                            There are no packages available right now. Please
+                            check later again.
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
