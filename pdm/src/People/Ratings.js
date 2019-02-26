@@ -29,6 +29,10 @@ class Ratings extends Component {
     };
   }
 
+  componentDidMount() {
+    document.title = "Ratings - Package Delivery Marketplace"
+  }
+
   render() {
     return (
       <div className="App">

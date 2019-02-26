@@ -36,10 +36,17 @@ export class ConfirmationPage extends Component {
   }
 
   componentDidMount() {
+    document.title = "Confirm your delivery - Package Delivery Marketplace"
     if(this.state.selectedPackages.length > 0){
       this.state.selectedPackages.map((entry) => {
         this.getUserPackages(entry.parcel_id)
       })
+    }
+
+    if(this.state.selectedPackages.length > 1){
+      this.sendSelectedPackages();
+    }else{
+      this.addDistanceCurrentToPickUpToWaypoint();
     }
   }
 
@@ -71,9 +78,10 @@ export class ConfirmationPage extends Component {
 
     let data = JSON.stringify({
       user_token: this.state.userToken,
-      packages: allPackageIDs
+      parcels: allPackageIDs
     });
 
+    console.log(data)
     let response = await sendPostRequest("pd_parcel_selection", data);
 
     console.log(response)
@@ -108,11 +116,6 @@ export class ConfirmationPage extends Component {
   }
 
   continueToFinalPage() {
-    if(this.state.selectedPackages.length > 1){
-      this.sendSelectedPackages();
-    }else{
-      this.addDistanceCurrentToPickUpToWaypoint();
-    }
     this.props.history.push({
       pathname: "/driver-route",
       state: {
@@ -209,7 +212,7 @@ export class ConfirmationPage extends Component {
                               Combined
                             </span>
                             <span style={{ float: "right", fontSize: "20px" }}>
-                              <b> {(p.potential_earning / 100).toFixed(2)}€ </b>
+                              <b> {(p.potential_earning).toFixed(2)} € </b>
                             </span>
                           </div>
                         );

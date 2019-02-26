@@ -45,6 +45,7 @@ export class Package extends Component {
   }
 
   componentDidMount() {
+    document.title = "Insert a new Package - Package Delivery Marketplace"
     this.setState({
       priority: "Priority: Very High",
       price: "Price: 50€"

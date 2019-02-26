@@ -43,12 +43,22 @@ export class Maps extends Component {
       openPackages: [],
       pickedUpPackages: [],
       pickedUpClicked: false,
-      currentPackageState: ""
+      currentPackageState: "",
+      jobResponse: {
+        parcel_id: "",
+        location: null
+      },
+      pickUpButtonClass: "buttons",
+      pickUpButtonText: "Next Pickup",
+      buttonCliked: false
     };
 
     this.initAutocomplete = this.initAutocomplete.bind(this);
     this.initMap = this.initMap.bind(this);
     this.calculateAndDisplayRoute = this.calculateAndDisplayRoute.bind(this);
+
+    this.successDiv = React.createRef();
+    this.pickUpButton = React.createRef();
     
     let map, geocoder, lastDestination;
   }
@@ -214,7 +224,6 @@ export class Maps extends Component {
       if (this.state.directionsService && this.state.directionsDisplay) {
         this.state.directionsDisplay.setMap(null);
         this.state.directionsDisplay.setMap(this.map);
-        let totalDistance = 0;
   
         if (waypoint !== null) {
           this.state.directionsService.route(
@@ -226,13 +235,8 @@ export class Maps extends Component {
             },
             function(response, status) {
               if (status === google.maps.DirectionsStatus.OK) {
-                this.state.directionsDisplay.setDirections(response);
-  
-                let dirRoutes = this.state.directionsDisplay.directions;
-                for (let i = 0; i < dirRoutes.routes[0].legs.length; i++) {
-                  totalDistance += dirRoutes.routes[0].legs[i].distance.value;
-                }
-                res(totalDistance)
+                this.handleDirectionsResponse(response);
+                res("success")
               }else{
                 rej("error")
               }
@@ -247,13 +251,8 @@ export class Maps extends Component {
             },
             function(response, status) {
               if (status === google.maps.DirectionsStatus.OK) {
-                this.state.directionsDisplay.setDirections(response);
-  
-                let dirRoutes = this.state.directionsDisplay.directions;
-                for (let i = 0; i < dirRoutes.routes[0].legs.length; i++) {
-                  totalDistance += dirRoutes.routes[0].legs[i].distance.value;
-                }
-                res(totalDistance)
+                this.handleDirectionsResponse(response);
+                res("Success")
               }else{
                 rej("error")
               }
@@ -267,73 +266,95 @@ export class Maps extends Component {
     })
   }
 
-  async calculateAndDisplayRoute() {
-    if (this.state.waypoints.length > 1) {
+  handleDirectionsResponse(response) {
+    let totalDistance = 0;
+    let totalDuration = 0;
 
+    this.state.directionsDisplay.setDirections(response);
+  
+    let dirRoutes = this.state.directionsDisplay.directions;
+    for (let i = 0; i < dirRoutes.routes[0].legs.length; i++) {
+      totalDistance += dirRoutes.routes[0].legs[i].distance.value;
+      totalDuration += dirRoutes.routes[0].legs[i].duration.value;
+    }
+
+    let roundedTotalDistance = totalDistance / 1000;
+    roundedTotalDistance = roundedTotalDistance.toFixed(1);
+
+    var date = new Date(null);
+    date.setSeconds(totalDuration); // specify value for SECONDS here
+    var resultTime = 0;
+    if (totalDuration < 3600) {
+      resultTime = date.toISOString().substr(14, 5);
+    } else {
+      resultTime = date.toISOString().substr(11, 8);
+      resultTime = date.toISOString().substr(11, 8);
+    }
+
+    this.setState({
+      duration: resultTime,
+      distance: roundedTotalDistance + " km"
+    });
+  }
+
+  calculateAndDisplayRoute = async(e) => {
+    if (this.state.waypoints.length > 1) {
+      this.setState({pickUpButtonText: "Next Pickup"})
+      console.log("inside");
       let data = JSON.stringify({
-        user_token: this.state.userToken,
-        current_location: this.state.startLocation
+        user_token: this.props.userToken,
+        current_location: this.state.startLocation,
+        parcel_id: this.state.jobResponse.parcel_id
       });
+
 
       let response = await sendPostRequest("pd_status", data);
 
-      console.log(response)
+      if(response.data){
+        if(response.data.length===0){
+          this.routeFinished();
+        }else{
+          this.setState({
+            jobResponse: {
+              parcel_id: response.data.parcel_id,
+              location: response.data.location
+            }
+          })
+          console.log(response)
+    
+          this.drawRouteOnMaps(this.state.startLocation, this.state.jobResponse.location, null, true);      
+    
+          this.setState({
+            startLocation: this.state.jobResponse.location
+          })
+        }
+      }
   
     } else {
-      // Aktueller Code
-      if (this.state.directionsService && this.state.directionsDisplay) {
-        this.state.directionsDisplay.setMap(null);
-        this.state.directionsDisplay.setMap(this.map);
-
-        this.state.directionsService.route(
-          {
-            origin: this.state.startLocation,
-            destination: this.state.destination,
-            waypoints: this.state.waypoints,
-            travelMode: google.maps.TravelMode.DRIVING,
-            provideRouteAlternatives: true
-          },
-          function(response, status) {
-            if (status === google.maps.DirectionsStatus.OK) {
-              this.state.directionsDisplay.setDirections(response);
-
-              let totalDuration = 0;
-              let totalDistance = 0;
-
-              let dirRoutes = this.state.directionsDisplay.directions;
-              for (let i = 0; i < dirRoutes.routes[0].legs.length; i++) {
-                totalDistance += dirRoutes.routes[0].legs[i].distance.value;
-                totalDuration += dirRoutes.routes[0].legs[i].duration.value;
-              }
-
-              let roundedTotalDistance = totalDistance / 1000;
-              roundedTotalDistance = roundedTotalDistance.toFixed(1);
-
-              var date = new Date(null);
-              date.setSeconds(totalDuration); // specify value for SECONDS here
-              var resultTime = 0;
-              if (totalDuration < 3600) {
-                resultTime = date.toISOString().substr(14, 5);
-              } else {
-                resultTime = date.toISOString().substr(11, 8);
-                resultTime = date.toISOString().substr(11, 8);
-              }
-
-              this.setState({
-                duration: resultTime,
-                distance: roundedTotalDistance + " km"
-              });
-            } else {
-              window.alert("Directions request failed due to " + status);
-            }
-          }.bind(this)
-        );
+      if(!this.state.buttonCliked){
+        if (this.state.directionsService && this.state.directionsDisplay) {
+          this.setState({
+            pickUpButtonText: "Delivered",
+            buttonCliked: true
+          })
+          this.state.directionsDisplay.setMap(null);
+          this.state.directionsDisplay.setMap(this.map);
+          this.drawRouteOnMaps(this.state.startLocation,this.state.destination, this.state.waypoints, true);      
+        }
+      }else{
+        this.routeFinished();
       }
     }
   };
 
-  sleep = (milliseconds) => {
-    return new Promise(resolve => setTimeout(resolve, milliseconds))
+  routeFinished() {
+    this.successDiv.current.style.display = "inherit";
+    this.state.directionsDisplay.setMap(null);
+
+    this.pickUpButton.current.disabled = true;
+    this.setState({
+      pickUpButtonClass: "button-disabled"
+    })
   }
 
   /**
@@ -498,6 +519,9 @@ export class Maps extends Component {
 
     return (
       <div>
+        <div className="success-div" style={{display: "none"}} ref={this.successDiv}>
+          Congratulations! You delivered all packages successfully.
+        </div>
         {this.state.showAutoCompleteBar ? (
           <input type="text" id="searchTextField" />
         ) : (
@@ -564,6 +588,12 @@ export class Maps extends Component {
                   {this.state.currentPackageState}
                 </div>
               </div>
+              <button 
+              className={this.state.pickUpButtonClass} 
+              ref={this.pickUpButton} 
+              onClick={this.calculateAndDisplayRoute}
+              style={{marginTop: "20px", marginBottom: 0, marginLeft: "20px"}}
+              >{this.state.pickUpButtonText}</button>
             </div>
           ) : (
             ""

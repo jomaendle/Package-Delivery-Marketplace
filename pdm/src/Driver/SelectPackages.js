@@ -43,6 +43,10 @@ export class Package extends Component {
     }
   }
 
+  componentDidMount() {
+    document.title = "Select Packages - Package Delivery Marketplace"
+  }
+
   async getDriverPackages() {
     // API Call to fetch the parcels which fit for the driver
     if (
@@ -59,6 +63,7 @@ export class Package extends Component {
 
       let response = await sendPostRequest("pd_suggestions", data);
       if (response !== null) {
+        console.log(response)
         this.setState({
           packages: response.data,
           loading: false
@@ -142,7 +147,7 @@ export class Package extends Component {
                                   position: "relative",
                                   marginRight: "8px"
                                 }}
-                                alt="Shows an a route with multiple waypoints."
+                                alt="Shows an a packaging box."
                                 src="/assets/box.png"
                               />
                               Package {index + 1}
@@ -180,7 +185,7 @@ export class Package extends Component {
                               Combined
                             </span>
                             <span style={{ float: "right", fontSize: "20px" }}>
-                              <b> {p.potential_earning.toFixed(2)}€ </b>
+                              <b> {p.potential_earning.toFixed(2)} € </b>
                             </span>
                           </div>
                         );

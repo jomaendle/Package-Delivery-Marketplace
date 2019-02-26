@@ -617,10 +617,19 @@ font-weight: 600;
   font-size: 14px;
   display: block;
   margin-bottom: 20px;
-  margin-left: 20px;
   padding-bottom: 0;
-  margin-left: 85px;
+  margin-left: 81px;
   line-height: 0;
+}
+
+#my-packages-status-label {
+  right: 10px;
+  display: inline;
+  position: absolute;
+  top: 10px;
+  text-transform: capitalize;
+  color: #4e83c5;
+  font-weight: 600;
 }
 
 /*
@@ -643,8 +652,6 @@ Loading spinnger
   100% { transform: rotate(360deg); }
 }
 
-
-
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -655,25 +662,25 @@ Loading spinnger
 }
 
 
-@media (min-device-width : 1081px)  {
+@media only screen and (min-device-width : 1081px)  {
   #navigation-bar {
     padding-left: 0;
   }
 }
 
-@media (max-device-width : 1080px)  {
+@media only screen and (max-device-width : 1080px)  {
   #navigation-bar {
     left: 0;
   }
 }
 
-@media (min-device-width : 880px)  {
+@media only screen and (min-device-width : 880px)  {
   .main-content{
     width: 65%;
   }
 }
 
-@media (max-device-width : 768px)  {
+@media only screen and (max-device-width : 768px)  {
   #navigation-bar {
     display: none;
   }

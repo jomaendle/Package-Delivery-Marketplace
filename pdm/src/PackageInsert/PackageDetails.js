@@ -31,6 +31,7 @@ export class PackageDetail extends Component {
   }
   
   componentDidMount() {
+    document.title = "Package Details - Package Delivery Marketplace"
     this.getUserPackages();
     setTimeout(function(){ 
       this.setState({

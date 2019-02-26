@@ -34,6 +34,7 @@ export class Driver extends Component {
   componentWillMount() {
     //Get start location and destination
     console.log(this.props.location.state);
+    console.log("here")
     
     if (this.props.location.state) {
       this.setState({
@@ -46,21 +47,11 @@ export class Driver extends Component {
     }
   }
 
-  handlePickUp = (e) => {
-    /*e.preventDefault();
-    e.target.disabled = true;
-    e.target.classList.add("button-disabled");
-    e.target.classList.remove("buttons");*/
-    this.setState({
-      pickedUpClicked: true
-    })
-    
-    //API Call to set Button status to delivery
+  componentDidMount() {
+    document.title = "Your Route - Package Delivery Marketplace"
   }
 
-  handleMapsCallBack(){
 
-  }
 
   render() {
     return (
@@ -80,19 +71,11 @@ export class Driver extends Component {
                     waypoints={this.state.waypoints}
                     destination={this.state.destination}
                     pickedUpClicked={this.state.pickedUpClicked}
+                    userToken={this.state.userToken}
                     calculateRoute="true"
                   />
 
-                  <button className="buttons" ref={this.pickedUpButton} onClick={this.handlePickUp}>
-                    Picked Up
-                  </button>
-                  <button
-                    className="buttons cta-button"
-                    ref={this.submittedButton}
-                    style={{ float: "right" }}
-                  >
-                    Delivered
-                  </button>
+            
                 </div>
               ) : (
                 <div className="tile">

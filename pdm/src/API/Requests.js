@@ -5,7 +5,7 @@ export const sendPostRequest = (endpoint, data) => {
     //Send HTTP Post request
     axios
       .post(
-        "https://us-central1-studienarbeit.cloudfunctions.net/" + endpoint,
+        "https://europe-west1-studienarbeit.cloudfunctions.net/" + endpoint,
         data,
         {
           headers: {
@@ -17,6 +17,7 @@ export const sendPostRequest = (endpoint, data) => {
         res(response);
       })
       .catch(error => {
+        console.log(error)
         rej(null);
       });
   });

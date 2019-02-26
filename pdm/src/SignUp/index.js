@@ -30,6 +30,10 @@ class SignUpFormBase extends Component {
     this.submitButton = React.createRef();
   }
 
+  componentDidMount() {
+    document.title = "Sign Up - Package Delivery Marketplace"
+  }
+
   onSubmit = event => {
     const { username, email, passwordOne } = this.state;
       this.props.firebase

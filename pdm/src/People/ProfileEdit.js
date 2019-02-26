@@ -59,11 +59,11 @@ class ProfileEdit extends Component {
         .updateEmail(this.state.email)
         .then(function() {
           // Update successful.
-          this.successDiv.current.style.display = "inherit"
+          this.successDiv.current.style.display = "inherit";
         }.bind(this))
         .catch(function(error) {
           // An error happened.
-          this.failDiv.current.style.display = "inherit"
+          this.failDiv.current.style.display = "inherit";
           console.log("Error while changing email information");
         }.bind(this));
     }
@@ -78,6 +78,7 @@ class ProfileEdit extends Component {
   }
 
   componentDidMount() {
+    document.title = "Edit Profile - Package Delivery Marketplace"
     this.getUserData();
   }
 

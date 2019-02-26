@@ -30,6 +30,10 @@ export class MyPackages extends Component {
     }.bind(this), 4000);
   }
 
+  componentDidMount() {
+    document.title = "My Packages - Package Delivery Marketplace"
+  }
+
   async getUserPackages() {
     //Wrap data into object
     let data = JSON.stringify({
@@ -41,6 +45,7 @@ export class MyPackages extends Component {
     let response = await sendPostRequest("parcel", data);
 
     if(response){
+      console.log(response)
       this.setState({
         packages: response.data.list,
         loading: false
@@ -75,10 +80,11 @@ export class MyPackages extends Component {
   }
 
   showPackageDetail = (e, p) => {
+    e.preventDefault();
     this.props.history.push({
       pathname: "/package-details",
       state: {
-        currentPackageID: p,
+        currentPackageID: p[0],
         userToken: this.state.userToken
       }
     });
@@ -104,7 +110,22 @@ export class MyPackages extends Component {
                           key={index}
                           onClick={e => this.showPackageDetail(e, p)}
                         >
-                          <span className="packages-table">{p}</span>
+                          <span  id="packages-table-heading" className="packages-table">
+                          <img
+                              style={{
+                                width: "28px",
+                                top: "8px",
+                                position: "relative",
+                                marginRight: "8px"
+                              }}
+                              alt="Shows an a packaging box."
+                              src="/assets/box.png"
+                            />
+                            Package {index}
+                          </span>
+                          <span className="packages-table">{p[0]}</span>
+                          <span id="my-packages-status-label" className="packages-table">{p[1]}</span>
+                          <span className="packages-table">{p[2]}</span>
 
                         </div>
                       );

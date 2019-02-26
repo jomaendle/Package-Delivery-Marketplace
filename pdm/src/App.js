@@ -31,6 +31,7 @@ class App extends Component {
   }
 
   componentDidMount(){
+    document.title = "Home - Package Delivery Marketplace"
   }
 
   render() {

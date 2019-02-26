@@ -24,21 +24,25 @@ export class MyDrives extends Component {
     this.getUserToken();
   }
 
+  componentDidMount() {
+    document.title = "My Deliveries - Package Delivery Marketplace"
+  }
+
   async getUserDrives() {
     //Wrap data into object
-
     let data = JSON.stringify({
       user_token: this.state.userToken
     });
 
     //Send HTTP Post request
-    let response = await sendPostRequest("pd_job", data);
+    let response = await sendPostRequest("pd_job_history", data);
     if(response !== null){
-      console.log(response.data.list);
+      console.log(response);
         this.setState({
           drives: response.data
       });
     }else{
+      console.log(response)
       console.log("Error fetching user drives");
     }
   }
@@ -54,7 +58,7 @@ export class MyDrives extends Component {
               {
                 userToken: idToken
               },
-              this.getUserPackages
+              this.getUserDrives
             );
           }.bind(this)
         )
@@ -65,6 +69,7 @@ export class MyDrives extends Component {
   }
 
   render() {
+    
     return (
       <div className="App">
         <Header />
@@ -83,7 +88,10 @@ export class MyDrives extends Component {
                       this.state.drives.map((p, index) => {
                         return (
                           <div className="listed-packages" key={index}>
-                            <span className="packages-table">{p}</span>
+                            <span id="packages-table-heading" className="packages-table">Job {index+1}</span>
+                            <span className="packages-table">Job ID: {p.job_id}</span>
+                            <span className="packages-table">Number of Packages: {p.parcels.length}</span>
+                            <span className="packages-table">{p.time_created}</span>
                           </div>
                         );
                       })

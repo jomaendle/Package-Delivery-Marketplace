@@ -29,6 +29,10 @@ class SignInFormBase extends Component {
     this.state = { ...INITIAL_STATE };
   }
 
+  componentDidMount() {
+    document.title = "Sign In - Package Delivery Marketplace"
+  }
+
   onSubmit = event => {
     const { email, password } = this.state;
 

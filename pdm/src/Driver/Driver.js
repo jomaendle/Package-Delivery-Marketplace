@@ -51,6 +51,7 @@ export class Driver extends Component {
 }
 
   componentDidMount() {
+    document.title = "Set your location - Package Delivery Marketplace"
     if (this.props.location.state) {
       this.setState({
         userToken: this.props.location.state.userToken,

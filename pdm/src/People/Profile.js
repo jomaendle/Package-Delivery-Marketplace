@@ -33,6 +33,7 @@ class Profile extends Component {
   }
 
   componentDidMount() {
+    document.title = "Profile - Package Delivery Marketplace"
     this.getUserData();
   }
 
