@@ -89,10 +89,7 @@ export class PackageDetail extends Component {
           <AuthUserContext.Consumer>
             {authUser =>
               authUser ? (
-                <div
-                  className="tile"
-                  style={{ minHeight: "180px", padding: "25px" }}
-                >
+                <div className="tile">
                   <div id="my-packages-container">
                     <h2>View your package</h2>
                     <img
@@ -116,9 +113,14 @@ export class PackageDetail extends Component {
                       })
                     ) : (
                       <div>
-                        {this.state.loading ? (
-                          <div className="loader" />
-                        ) : (
+                        {this.state.loading 
+                        ? (
+                        <div className="spinner">
+                            <div className="bounce1"></div>
+                            <div className="bounce2"></div>
+                            <div className="bounce3"></div>
+                        </div>) 
+                        : (
                           <div>
                             Package information are currently unavailable. Please check later again.
                           </div>

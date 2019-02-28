@@ -51,8 +51,6 @@ export class Driver extends Component {
     document.title = "Your Route - Package Delivery Marketplace"
   }
 
-
-
   render() {
     return (
       <div className="App">

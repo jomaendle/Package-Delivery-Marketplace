@@ -193,8 +193,11 @@ export class Package extends Component {
                     ) : (
                       <div style={{ marginBottom: "25px" }}>
                         {this.state.loading ? (
-                          <div className="loader" />
-                        ) : (
+                          <div className="spinner">
+                            <div className="bounce1"></div>
+                            <div className="bounce2"></div>
+                            <div className="bounce3"></div>
+                          </div>) : (
                           <div>
                             There are no packages available right now. Please
                             check later again.

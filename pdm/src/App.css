@@ -85,7 +85,6 @@ Profile
 
 .profile-information {
   margin-bottom: 15px;
-  margin-left: 10px;
 }
 
 .main-content{
@@ -520,6 +519,8 @@ Become driver page
 
  #my-packages-container {
    padding-left: 10px;
+   min-height: "180px"; 
+   padding: "25px";
  }
 
  #add-package-button {
@@ -573,9 +574,9 @@ Become driver page
 #mobile-menu-logo {
 
   width: 34px;
-  left: 24px;
+  left: 12px;
   display: none;
-  top: 8px;
+  top: 11px;
   position: absolute;
 }
 
@@ -623,13 +624,60 @@ font-weight: 600;
 }
 
 #my-packages-status-label {
-  right: 10px;
-  display: inline;
-  position: absolute;
-  top: 10px;
   text-transform: capitalize;
   color: #4e83c5;
   font-weight: 600;
+}
+
+.parcel-link {
+  cursor: pointer;
+}
+
+/*
+new loading 
+*/
+
+.spinner {
+  margin: 100px auto 0;
+  width: 90px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.spinner > div {
+  width: 17px;
+  margin-right: 8px;
+  height: 17px;
+  background-color: #4e83c5;
+  border-radius: 100%;
+  display: inline-block;
+  -webkit-animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+  animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+}
+
+.spinner .bounce1 {
+  -webkit-animation-delay: -0.32s;
+  animation-delay: -0.32s;
+}
+
+.spinner .bounce2 {
+  -webkit-animation-delay: -0.16s;
+  animation-delay: -0.16s;
+}
+
+@-webkit-keyframes sk-bouncedelay {
+  0%, 80%, 100% { -webkit-transform: scale(0) }
+  40% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes sk-bouncedelay {
+  0%, 80%, 100% { 
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  } 40% { 
+    -webkit-transform: scale(1.0);
+    transform: scale(1.0);
+  }
 }
 
 /*
@@ -687,12 +735,13 @@ Loading spinnger
 
   #my-packages-container{
     width: 100%;
+    padding-left: 0;
   }
   .main-content{
     padding: 0;
     width: 100%;
     left: 0;
-    margin-top: 50px;
+    margin-top: 55px;
   }
 
   .App {
@@ -701,13 +750,14 @@ Loading spinnger
 
 
   #Header-label {
-    margin: 13px 20px;
-    font-size: 1.2em;
+    margin: 16px 16px;
+    font-size: 1.3em;
     margin-left: 55px;
+    float: left;
   }
 
   #Header {
-    height: 50px;
+    height: 55px;
   }
 
   p {
@@ -731,11 +781,12 @@ Loading spinnger
   }
 
   #add-package-button {
-    position: relative;
-    margin-top: 20px;
-    top: 0;
-    right: 0;
+    top: 22px;
   }
+
+  #my-packages-container h2 {
+    width: 65%;
+  } 
 
   #mobile-menu-logo {
     display: block;
@@ -744,5 +795,9 @@ Loading spinnger
   .buttons {
     padding: 0.85em 1.2em;
     font-size: 15px;
+  }
+
+  .home-text {
+    padding: 15px 0;
   }
 }

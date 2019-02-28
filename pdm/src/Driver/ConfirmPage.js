@@ -42,12 +42,8 @@ export class ConfirmationPage extends Component {
         this.getUserPackages(entry.parcel_id)
       })
     }
-
-    if(this.state.selectedPackages.length > 1){
-      this.sendSelectedPackages();
-    }else{
-      this.addDistanceCurrentToPickUpToWaypoint();
-    }
+    
+    this.sendSelectedPackages();
   }
 
   ReturnToPreviousPage() {
@@ -57,17 +53,6 @@ export class ConfirmationPage extends Component {
         selectedPackages: this.state.selectedPackages
       }
     });
-  }
-
-  addDistanceCurrentToPickUpToWaypoint(){
-    for(let i =0; i<this.state.waypoints.length; i++){
-      for(let j =0; j<this.state.selectedPackages.length; j++){
-        if(this.state.selectedPackages[j].parcel_id === this.state.waypoints[i].parcel_id){
-          this.state.waypoints[i].distance_current_pickup = this.state.selectedPackages[j].distance_current_pickup;
-          console.log("distance was set.");
-        }
-      }
-    }
   }
 
   async sendSelectedPackages(){
@@ -81,10 +66,8 @@ export class ConfirmationPage extends Component {
       parcels: allPackageIDs
     });
 
-    console.log(data)
     let response = await sendPostRequest("pd_parcel_selection", data);
 
-    console.log(response)
   }
 
 

@@ -50,6 +50,7 @@ export class MyPackages extends Component {
         packages: response.data.list,
         loading: false
       });
+      this.sortPackagesByTime();
     }else{
       this.setState({
         loading: false
@@ -90,6 +91,38 @@ export class MyPackages extends Component {
     });
   }
 
+  diffHours = date => {
+    let dt2 = new Date();
+    let dt1 = new Date(date);
+    var diff = (dt2.getTime() - dt1.getTime()) / 1000;
+    diff /= 60 * 60;
+    if (Math.abs(Math.round(diff)) >= 24) {
+        return Math.round(Math.abs(Math.round(diff)) / 24) + " d ago";
+    } else {
+        return Math.abs(Math.round(diff)) + " h ago";
+    }
+  };
+
+  sortPackagesByTime = () => {
+    let resultArray = this.state.packages;
+    resultArray.sort(function(a, b) {
+        var dateA = new Date(a[2]);
+        var dateB = new Date(b[2]);
+
+        if (dateA < dateB) {
+            return 1;
+        }
+        if (dateA > dateB) {
+            return -1;
+        }
+        return 0;
+    });
+
+    this.setState({
+      packages: resultArray
+    });
+  }
+
   render() {
     return (
       <div className="App">
@@ -99,14 +132,14 @@ export class MyPackages extends Component {
           <AuthUserContext.Consumer>
             {authUser =>
               authUser ? (
-                <div className="tile" style={{minHeight: "180px", padding: "25px"}}>
+                <div className="tile">
                   <div id="my-packages-container">
                     <h2>Manage your packages.</h2>
 
                     {this.state.packages.length ? this.state.packages.map((p, index) => {
                       return (
                         <div
-                          className="listed-packages"
+                          className="listed-packages parcel-link"
                           key={index}
                           onClick={e => this.showPackageDetail(e, p)}
                         >
@@ -121,12 +154,21 @@ export class MyPackages extends Component {
                               alt="Shows an a packaging box."
                               src="/assets/box.png"
                             />
-                            Package {index}
+                            Package {index+1}
                           </span>
                           <span className="packages-table">{p[0]}</span>
                           <span id="my-packages-status-label" className="packages-table">{p[1]}</span>
-                          <span className="packages-table">{p[2]}</span>
-
+                          <span className="packages-table"  style={{position:"absolute",top: "10px",right: "5px"}}>
+                          <img
+                            style={{
+                                width:"20px",
+                                top:"4px",
+                                position:"relative",
+                                marginRight:"8px"}}
+                            alt="Shows a clock"
+                            src="/assets/past.png"
+                        />
+                        {this.diffHours(p[2])}</span>
                         </div>
                       );
                     }) 
@@ -134,7 +176,11 @@ export class MyPackages extends Component {
                     : (
                       <div id="no-available-div">
                           {this.state.loading 
-                          ? (<div className="loader"></div>)
+                          ? (<div className="spinner">
+                              <div className="bounce1"></div>
+                              <div className="bounce2"></div>
+                              <div className="bounce3"></div>
+                            </div>)
                           : (
                             <div>
                               No packages available. <br/>
