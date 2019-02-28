@@ -178,7 +178,7 @@ def parcel(request):
             if parcel_id == '' or req_action == 'list':
                 search_result = db.collection(u'parcels').where(u'customer_id', u'==', uid).get()
 
-                plist = [doc.id for doc in search_result]
+                plist = [(doc.id, doc.to_dict()['parcel_status'], doc.to_dict()['time_created']) for doc in search_result]
 
 
                 answ = jsonify(
@@ -241,25 +241,13 @@ def pd_suggestions(request):
             jParcel['parcel_id'] = sParcel.id
             tmp_dev_list.append(jParcel)
     
-    fullinfo_poss_parcel = [(iParcel['pickup_location']['lat'], iParcel['pickup_location']['lng'])
-                            for iParcel in tmp_dev_list]
-    #return (jsonify(fullinfo_poss_parcel), 200, headers)
-    #distance_matrix = create_distance_matrix(fullinfo_poss_parcel)
-    #nextCity(fullinfo_poss_parcel, distance_matrix)
-    calc_best = gmaps.directions(origin=(driver_position['lat'], driver_position['lng']),
-                                destination=(driver_position['lat'], driver_position['lng']),
-                                waypoints=fullinfo_poss_parcel,
-                                mode='driving',
-                                departure_time=now,
-                                optimize_waypoints=True)
-    calc_best = calc_best[0]['waypoint_order']
-    return (jsonify(calc_best), 200, headers)
+    return (jsonify(possibleParcels), 200, headers)
 
 @firestore.transactional
 def helper_pd_parcel_selection_transaction(transaction, parcel_ref, driver_id):
-    parcel_snapshot = parcel_ref.get(transaction=transaction).get().to_dict()
+    parcel_status_snapshot = parcel_ref.get(transaction=transaction).get(u'parcel_status')
 
-    if parcel_snapshot['parcel_status'] == 'home':
+    if parcel_status_snapshot == 'home':
         transaction.update(parcel_ref, {
             u'parcel_status': 'ready',
             u'driver_id': driver_id
@@ -276,16 +264,24 @@ def pd_parcel_selection(request):
     elif verification == True:
         uid = message[0]
         content = message[1]
-    selected_parcels = content['parcels']
+    
+    try:
+        selected_parcels = content['parcels']
+    except Exception as e:
+        selected_parcels = []
 
-    # !! TODO; make sure use doesn't have any open jobs
+    # make sure use doesn't have any open jobs
     jobs = db.collection(u'jobs').where(u'driver_id', u'==', uid).where(u'job_status', u'==', 'created').get()
+    jobs = list(jobs)
     if len(jobs) > 0:
-        return ("You already have an ongoing job", 400, headers)
+        return ("[]", 200, headers)
 
     # Start Firebase Transaction to ensure consistency
     accepted_parcels = []
     # Validate, that all parcels are still available aka status = home
+    if len(selected_parcels) == 0:
+        return ('[]', 200, headers)
+    
     for parcel_id in selected_parcels:
         transaction = db.transaction()
         parcel_ref = db.collection(u'parcels').document(parcel_id)
@@ -294,6 +290,8 @@ def pd_parcel_selection(request):
             accepted_parcels.append(parcel_id)
 
     if len(accepted_parcels) > 0:
+        time_created = datetime.now()
+
         doc_ref = db.collection(u'jobs').document()
         doc_ref.set({
             u'driver_id': uid,
@@ -312,13 +310,13 @@ def pd_parcel_selection(request):
 
 def pd_status(request):
     # Check authentification and set CORS preflight, as well as regular headers
-
     verification, http_code, message, headers = verify_request(request)
     if verification == False:
         return (message, http_code, headers)
     elif verification == True:
         uid = message[0]
         content = message[1]
+
     driver_location = content['current_location']
     parcel_id = content['parcel_id']
 
@@ -339,10 +337,12 @@ def pd_status(request):
             })
 
     # Check drivers active Job
-    jobs = db.collection(u'jobs').where(u'driver_id', u'==', uid).where(u'job_status', u'==', 'created').get()
-    if len(jobs) > 1:
-        return ("Bad Error - multiple active jobs exist", 400, headers)
+    jobs_ref = db.collection(u'jobs').where(u'driver_id', u'==', uid).where(u'job_status', u'==', 'created')
+    jobs = list(jobs_ref.get())
+    if len(jobs) != 1:
+        return ("[]", 200, headers)
     job = jobs[0].to_dict()
+    job_id = jobs[0].id
 
     # Create Available Location Array - find locations that are applicaple for delivery
     accessible_locations = []
@@ -354,30 +354,35 @@ def pd_status(request):
 
         if parcel_status == 'ready':
             # Parcel is ready, add pickup_location to accessible_locations
-            accessible_locations.append((parcel_id, parcel_status['pickup_location']))
+            accessible_locations.append((parcel_id, parcel_details['pickup_location']))
 
         elif parcel_status == 'delivery':
             # Parcel is in posession, add destination_location to accessible_locations
-            accessible_locations.append((parcel_id, parcel_status['destination_location']))
+            accessible_locations.append((parcel_id, parcel_details['destination_location']))
 
-    # !! If array is empty, job terminates with success. Change status, notify user
+    # If array is empty, job terminates with success. Change status, notify user
+    if len(accessible_locations) == 0:
+        db.collection(u'jobs').document(job_id).update({
+                u'job_status': 'finished'
+        })
+        return ('[]', 200, headers)
 
     # Calculate closest parcel and best waypoint
     stripped_loc = [(parcel[1]['lat'], parcel[1]['lng'])
                             for parcel in accessible_locations]
 
-    calc_best = gmaps.directions(origin=(driver_position['lat'], driver_position['lng']),
-                            destination=(driver_position['lat'], driver_position['lng']),
+    calc_best = gmaps.directions(origin=(driver_location['lat'], driver_location['lng']),
+                            destination=(driver_location['lat'], driver_location['lng']),
                             waypoints=stripped_loc,
                             mode='driving',
-                            departure_time=now,
+                            departure_time=datetime.now(),
                             optimize_waypoints=True)
 
 
     # [ 0, 2, 1]
     best_parcel_index = calc_best[0]['waypoint_order']
     
-    # (pid, loc)
+    # (pid, [loc])
     actual_best = accessible_locations[best_parcel_index[0]]
 
     answ = jsonify(
@@ -397,14 +402,38 @@ def pd_job(request):
         uid = message[0]
 
     jobs = db.collection(u'jobs').where(u'driver_id', u'==', uid).where(u'job_status', u'==', 'created').get()
+    jobs = list(jobs)
+    if len(jobs) != 1:
+        return ("[]", 200, headers)
+
+    # check if generator empty
     job = jobs[0].to_dict()
 
     answ = jsonify(
-        job_id = job['time_created'],
+        job_id = jobs[0].id,
         time_created = job['time_created'],
         parcels = job['selected_parcels']
     )
     return (answ, 200, headers)
+
+def pd_job_history(request):
+    # Check authentification and set CORS preflight, as well as regular headers
+    verification, http_code, message, headers = verify_request(request)
+    if verification == False:
+        return (message, http_code, headers)
+    elif verification == True:
+        uid = message[0]
+
+    jobs = db.collection(u'jobs').where(u'driver_id', u'==', uid).where(u'job_status', u'==', 'finished').get()
+    jobs = list(jobs)
+
+    jobs = [job.to_dict() for job in jobs]
+
+    answ = jsonify(
+        jobs = jobs
+    )
+    return (answ, 200, headers)
+
 
 def pd_parcel_status(request):
 
