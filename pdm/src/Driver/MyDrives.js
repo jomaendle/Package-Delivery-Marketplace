@@ -195,7 +195,7 @@ export class MyDrives extends Component {
                                                                 style={{position:"absolute",top: "10px",right: "5px"}}>
                                                                 <img
                                                                     style={{
-                                                                        width:"20px",
+                                                                        width:"18px",
                                                                         top:"4px",
                                                                         position:"relative",
                                                                         marginRight:"8px"

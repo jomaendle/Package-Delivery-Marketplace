@@ -158,10 +158,29 @@ export class MyPackages extends Component {
                           </span>
                           <span className="packages-table">{p[0]}</span>
                           <span id="my-packages-status-label" className="packages-table">{p[1]}</span>
+                          
+                            {p[3] 
+                              ? (
+                                <div>
+                                  <span className="packages-table">
+                                  <img
+                                  style={{
+                                      width:"18px",
+                                      top:"4px",
+                                      position: "relative",
+                                      marginRight:"8px"}}
+                                  alt="Shows a message icon"
+                                  src="/assets/chat.png"/>
+                                  {p[3]}
+                                  </span>
+                                </div>
+                                
+                                ) 
+                              : ""}
                           <span className="packages-table"  style={{position:"absolute",top: "10px",right: "5px"}}>
                           <img
                             style={{
-                                width:"20px",
+                                width:"18px",
                                 top:"4px",
                                 position:"relative",
                                 marginRight:"8px"}}

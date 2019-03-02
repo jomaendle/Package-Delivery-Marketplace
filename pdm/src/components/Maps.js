@@ -50,7 +50,10 @@ export class Maps extends Component {
             },
             pickUpButtonClass: "buttons",
             pickUpButtonText: "Next Pickup",
-            buttonCliked: false
+            buttonCliked: false,
+            showDestinationBar: false,
+            formattedStart: "",
+            formattedDestination: ""
         };
 
         this.initAutocomplete = this.initAutocomplete.bind(this);
@@ -62,7 +65,7 @@ export class Maps extends Component {
         this.successDiv = React.createRef();
         this.pickUpButton = React.createRef();
 
-        let map, geocoder, lastDestination;
+        let map, geocoder;
     }
 
     componentWillMount() {
@@ -103,6 +106,11 @@ export class Maps extends Component {
         this.setState({
             pickedUpClicked: this.props.pickedUpClicked
         });
+        if(this.props.showDestinationBar==="true"){
+            this.setState({
+                showDestinationBar: true
+            })
+        }
     }
 
     componentDidMount() {
@@ -150,6 +158,9 @@ export class Maps extends Component {
         //Initialize the autocomplete text field
         if (this.state.showAutoCompleteBar) {
             this.initAutocomplete(this.geocoder);
+        }
+        if(this.state.showDestinationBar){
+            this.initDestinationBar(this.geocoder);
         }
     }
 
@@ -219,20 +230,22 @@ export class Maps extends Component {
         date.setSeconds(totalDuration); // specify value for SECONDS here
         var resultTime = 0;
         if (totalDuration < 3600) {
-            resultTime = date.toISOString().substr(14, 5);
+            resultTime = date.toISOString().substr(14, 5) + ":Min";
         } else {
-            resultTime = date.toISOString().substr(11, 8);
-            resultTime = date.toISOString().substr(11, 8);
+            resultTime = date.toISOString().substr(11, 8) + ":Hrs";
         }
 
         this.setState({
-            duration: resultTime,
+            duration: resultTime.split(":")[0] + " " + resultTime.split(":")[2] ,
             distance: roundedTotalDistance + " km"
         });
     }
 
     calculateAndDisplayRoute = async e => {
-      this.setState({ pickUpButtonText: "Next Pickup" });
+      this.setState({ 
+          pickUpButtonText: "Next Pickup",
+        });
+     
 
       let data = JSON.stringify({
           user_token: this.props.userToken,
@@ -241,15 +254,29 @@ export class Maps extends Component {
       });
 
       const response = await sendPostRequest("pd_status", data);
+      console.log(response)
 
       if (response.data) {
+        if (response.data.length === 0) {
+            this.routeFinished();
+        } else{
             this.setState({
                 jobResponse: {
                     parcel_id: response.data.parcel_id,
-                    location: response.data.location
-                }
+                    location: response.data.location,
+                    size: response.data.parcel_size,
+                    state: response.data.parcel_state,
+                    weight: response.data.parcel_weight,
+                    comment: response.data.parcel_comment
+                }, 
+                formattedDestination: await 
+                this.getAddressFromCoordinates(response.data.location ? response.data.location.lat : "", 
+                response.data.location ? response.data.location.lng : ""),
+                formattedStart:  await this.getAddressFromCoordinates(this.state.startLocation.lat, this.state.startLocation.lng)
             });
             console.log(response);
+            console.log(this.state.formattedStart);
+
 
             this.drawRouteOnMaps(
                 this.state.startLocation,
@@ -260,10 +287,9 @@ export class Maps extends Component {
 
             this.setState({
                 startLocation: this.state.jobResponse.location
-            });
-            if (response.data.length === 0) {
-                this.routeFinished();
-            } 
+            })
+            }
+
         }
     };
 
@@ -271,7 +297,8 @@ export class Maps extends Component {
         this.successDiv.current.style.display = "inherit";
         this.pickUpButton.current.disabled = true;
         this.setState({
-            pickUpButtonClass: "button-disabled"
+            pickUpButtonClass: "button-disabled",
+            pickUpButtonText: "Finished"
         });
     }
 
@@ -300,26 +327,123 @@ export class Maps extends Component {
                     );
                     this.map.setCenter(newlatlong);
 
+                    if(this.props.showDestinationBar){
+                        //remove previous marker from map
+                        let index;
+                        for(let i=0; i<this.state.mapPositionArray.length; i++){
+                            if(this.state.mapPositionArray[i].state === "start"){
+                                this.state.mapPositionArray[i].marker.setMap(null);
+                                index = 0;
+                                
+                            }
+                        }
+                        this.state.mapPositionArray.splice(index, 1);
+                    }
+
                     this.checkIfInfoWindowIsReached();
                     this.createNewInfoWindow(
                         this.place.geometry.location.lat(),
                         this.place.geometry.location.lng(),
-                        geocoder
+                        geocoder,
+                        "start"
                     );
+
 
                     if (this.props.callbackFromDriver) {
                         this.props.callbackFromDriver({
                             lat: this.place.geometry.location.lat(),
                             lng: this.place.geometry.location.lng()
                         });
-                    } else if (this.props.callbackFromParent) {
-                        this.props.callbackFromParent(this.state.coordinates);
+                    } if (this.props.setPackageStart) {
+                        this.props.setPackageStart({
+                            lat: this.place.geometry.location.lat(),
+                            lng: this.place.geometry.location.lng()
+                        });
                     }
 
                     this.map.setZoom(11);
                 }.bind(this)
             );
         }
+    }
+
+    initDestinationBar=(geocoder)=> {
+        if(this.map){
+            let inputDestination = document.getElementById("destinationTextField");
+
+            let marker = new google.maps.Marker({
+                map: this.map
+            });
+
+            let autocomplete = new google.maps.places.Autocomplete(inputDestination);
+            autocomplete.bindTo("bounds", this.map);
+
+            google.maps.event.addListener(
+                autocomplete,
+                "place_changed",
+                function() {
+                    this.place = autocomplete.getPlace();
+
+                    var newlatlong = new google.maps.LatLng(
+                        this.place.geometry.location.lat(),
+                        this.place.geometry.location.lng()
+                    );
+                    this.map.setCenter(newlatlong);
+
+                    //remove previous marker from map
+                    let index;
+                    for(let i=0; i<this.state.mapPositionArray.length; i++){
+                        if(this.state.mapPositionArray[i].state === "destination"){
+                            this.state.mapPositionArray[i].marker.setMap(null);
+                            index = 0;
+                        }
+                    }
+                    this.state.mapPositionArray.splice(index, 1);
+
+                    this.checkIfInfoWindowIsReached();
+                    this.createNewInfoWindow(
+                        this.place.geometry.location.lat(),
+                        this.place.geometry.location.lng(),
+                        geocoder,
+                        "destination"
+                    );
+
+
+                    if (this.props.setPackageDestination) {
+                        this.props.setPackageDestination({
+                            lat: this.place.geometry.location.lat(),
+                            lng: this.place.geometry.location.lng()
+                        });
+                    }
+
+                    this.map.setZoom(11);
+                }.bind(this)
+            );
+        }
+    }
+
+    getAddressFromCoordinates(lat, lng) {
+        return new Promise((res, rej) => {
+            this.geocoder.geocode(
+                { location: {
+                    lat: lat,
+                    lng: lng
+                }},
+                function(results, status) {
+                    if (status === "OK") {
+                        if (results[0]) {
+                            res(results[0].formatted_address);
+                        } else {
+                            window.alert("No results found");
+                            res("No results found.");
+                        }
+                    } else {
+                        window.alert("Geocoder failed due to: " + status);
+                        res("Geocoder failed due to: " + status)
+                    }
+                }.bind(this)
+            );
+        })
     }
 
     /**
@@ -376,10 +500,11 @@ export class Maps extends Component {
         }
     }
 
-    createNewInfoWindow(lat, lng, geocoder) {
+    createNewInfoWindow(lat, lng, geocoder, state) {
         let infoWindow, marker;
         var latlng = { lat: lat, lng: lng };
         let mapPosition = {
+            state: state,
             lat: lat,
             lon: lng,
             infoWindow: new google.maps.InfoWindow(),
@@ -439,101 +564,97 @@ export class Maps extends Component {
 
         return (
             <div>
-                <div
-                    className="success-div"
-                    style={{ display: "none" }}
-                    ref={this.successDiv}
-                >
+                <div className="success-div" style={{ display: "none" }} ref={this.successDiv}>
                     Congratulations! You delivered all packages successfully.
                 </div>
-                {this.state.showAutoCompleteBar ? (
-                    <input type="text" id="searchTextField" />
-                ) : (
-                    ""
-                )}
+                {this.state.showAutoCompleteBar 
+                ? 
+                (<div>
+                    {this.state.calculateRoute 
+                    ?(<span id="package-insert-label">Start</span>)
+                    : "" } 
+                    <input type="text" id="searchTextField" className="searchTextField" />
+                </div>) 
+                : ("")}
+                {this.state.showDestinationBar 
+                ? (<div>
+                        <span id="package-insert-label">Destination</span> <input type="text" id="destinationTextField"  className="searchTextField"/>
+                    </div>) 
+                : ("")}
                 <div id="map" />
                 <div>
                     {this.props.calculateRoute ? (
-                        <div
-                            style={{
-                                margin: "20px 0",
-                                overflow: "hidden",
-                                marginLeft: "-24px"
-                            }}
-                        >
-                            <div style={{ float: "left" }}>
-                                <img
-                                    style={{
-                                        width: "38px",
-                                        marginLeft: "28px",
-                                        position: "relative",
-                                        top: "16px"
-                                    }}
-                                    alt="Shows an icon of a person"
-                                    src="/assets/distance1.png"
-                                />
-                                <span
-                                    style={{
-                                        fontSize: "18px",
-                                        marginLeft: "15px",
-                                        fontWeight: 600
-                                    }}
-                                >
-                                    {this.state.distance}
-                                </span>
-                                <span
-                                    className="route-details"
-                                    ref={this.distanceLabel}
-                                >
-                                    Distance
-                                </span>
+                        <div>
+                            <div id="driver-route-information">
+                                <div className="driver-route-div" style={{marginLeft:"-12px"}}>
+                                    <div className="route-package">
+                                        <img className="driver-route-icons"
+                                        alt="Shows an icon of kilogram" src="/assets/product.png" />
+                                        <span className="route-packages-span">{this.state.jobResponse.state}</span>
+                                    </div>
+                                    <div  className="route-package">
+                                        <img className="driver-route-icons"
+                                        alt="Shows an icon of kilogram" src="/assets/size.png" />
+                                        <span className="route-packages-span">{this.state.jobResponse.size}</span>
+                                    </div>
+                                    <div className="route-package">
+                                        <img className="driver-route-icons"
+                                        alt="Shows an icon of kilogram" src="/assets/weight.png" />
+                                        <span className="route-packages-span">{this.state.jobResponse.weight}</span>
+                                    </div>
+                                    <div  className="route-package">
+                                        <img className="driver-route-icons"
+                                        alt="Shows an icon of kilogram" src="/assets/chat.png" />
+                                        <span className="route-packages-span">{this.state.jobResponse.comment ? this.state.jobResponse.comment : "N/A"}</span>
+                                    </div>
+                                </div>
+                                <div className="driver-route-div">
+                                    <span className="driver-route-spans">Current location </span>
+                                    <span> {this.state.formattedStart} </span>
+                                </div>
+                                <div className="driver-route-div">
+                                    <span className="driver-route-spans">Next location </span>
+                                    <span>{this.state.formattedDestination}</span>
+                                </div>
                             </div>
-                            <div
-                                style={{
-                                    marginLeft: "20px",
-                                    overflow: "hidden"
-                                }}
-                            >
-                                <img
-                                    style={{
-                                        width: "38px",
-                                        marginLeft: "28px",
-                                        position: "relative",
-                                        top: "20px"
-                                    }}
-                                    alt="Shows an icon of a person"
-                                    src="/assets/duration.png"
-                                />
-                                <span
-                                    style={{
-                                        fontSize: "18px",
-                                        marginLeft: "15px",
-                                        fontWeight: 600
-                                    }}
-                                >
-                                    {this.state.duration}
-                                </span>
-                                <span
-                                    className="route-details"
-                                    ref={this.durationLabel}
-                                >
-                                    Duration{" "}
-                                </span>
-                                <div>{this.state.currentPackageState}</div>
+                            <div style={{margin: "10px 0 0 -24px",overflow: "hidden" }}>
+                                <div style={{ float: "left" }}>
+                                    <img style={{width: "38px",marginLeft: "28px",position: "relative", top: "16px"  }}
+                                        alt="Shows an icon of a person" src="/assets/distance1.png" />
+                                    <span
+                                        style={{ fontSize: "18px", marginLeft: "15px",fontWeight: 600 }} >
+                                        {this.state.distance}
+                                    </span>
+                                    <span className="route-details"  ref={this.distanceLabel} >
+                                        Distance
+                                    </span>
+                                </div>
+                                <div
+                                    style={{ marginLeft: "20px", overflow: "hidden"
+                                    }}>
+                                    <img
+                                        style={{width: "38px",marginLeft: "28px",position: "relative",top: "20px"}}
+                                        alt="Shows an icon of a person"
+                                        src="/assets/duration.png" />
+                                    <span
+                                        style={{ fontSize: "18px", marginLeft: "15px", fontWeight: 600 }}>
+                                        {this.state.duration}
+                                    </span>
+                                    <span
+                                        className="route-details"
+                                        ref={this.durationLabel}>
+                                        Duration{" "}
+                                    </span>
+                                    <div>{this.state.currentPackageState}</div>
+                                </div>
+                                <button
+                                    className={this.state.pickUpButtonClass}
+                                    ref={this.pickUpButton}
+                                    onClick={this.calculateAndDisplayRoute}
+                                    style={{ marginTop: "20px", marginBottom: 0,  marginLeft: "20px",  position: "absolute", right: "20px", bottom: "30px" }}>
+                                    {this.state.pickUpButtonText}
+                                </button>
                             </div>
-                            <button
-                                className={this.state.pickUpButtonClass}
-                                ref={this.pickUpButton}
-                                onClick={this.calculateAndDisplayRoute}
-                                style={{
-                                    marginTop: "20px",
-                                    marginBottom: 0,
-                                    marginLeft: "20px",
-                                    float: "right"
-                                }}
-                            >
-                                {this.state.pickUpButtonText}
-                            </button>
                         </div>
                     ) : (
                         ""

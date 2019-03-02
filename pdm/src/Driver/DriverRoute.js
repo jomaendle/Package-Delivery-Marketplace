@@ -65,6 +65,7 @@ export class Driver extends Component {
                   <Map
                     allowMultipleClicks="false"
                     showAutoCompleteBar="false"
+                    numberOfClicksAllowed ="0"
                     startLocation={this.state.startLocation}
                     waypoints={this.state.waypoints}
                     destination={this.state.destination}

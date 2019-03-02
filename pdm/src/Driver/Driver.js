@@ -48,7 +48,7 @@ export class Driver extends Component {
             // Handle error
           });
     }
-}
+  }
 
   componentDidMount() {
     document.title = "Set your location - Package Delivery Marketplace"

@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import Navigation from "../components/Navigation";
 import Header from "../components/Header";
 import { withAuthentication, AuthUserContext } from "../Session";
+import {sendPostRequest} from "../API/Requests";
+import firebase from "firebase";
 import "../App.css";
 
 class Ratings extends Component {
@@ -9,49 +11,124 @@ class Ratings extends Component {
     super(props);
 
     this.state = {
-      drivers: [
-        {
-          id: 1,
-          name: "Alfredo",
-          rating: 88
-        },
-        {
-          id: 2,
-          name: "Jimmy M.",
-          rating: 402
-        },
-        {
-          id: 3,
-          name: "Benjamas",
-          rating: 1020
-        }
-      ]
+      userRatings: [],
+      loading: true
     };
   }
 
+  getAllRatings = async (e) => {
+    let data = JSON.stringify({
+      user_token: this.state.userToken
+    });
+
+    let response = await sendPostRequest("pd_rating", data);
+    console.log(response)
+    if(response){
+      this.setState({
+        userRatings: response.data,
+        loading: false
+      })
+      this.sortByPoints();
+    }else{
+      this.setState({
+        loading: false
+      })
+    }
+  }
+
+  getUserToken = () => {
+    if(firebase.auth().currentUser){
+        firebase
+          .auth()
+          .currentUser.getIdToken(/* forceRefresh */ true)
+          .then(
+            function(idToken) {
+              this.setState(
+                {
+                  userToken: idToken
+                },
+                this.getAllRatings
+              );
+            }.bind(this)
+          )
+          .catch(function(error) {
+            // Handle error
+          });
+    }
+  }
+
+
+  sortByPoints = () => {
+    let resultArray = this.state.userRatings;
+    resultArray.sort(function(a, b) {
+        var dateA = new Date(a[2]);
+        var dateB = new Date(b[2]);
+
+        if (dateA < dateB) {
+            return 1;
+        }
+        if (dateA > dateB) {
+            return -1;
+        }
+        return 0;
+    });
+
+    this.setState({
+      userRatings: resultArray
+    });
+  }
+  
+
+  componentWillMount() {
+    this.getUserToken();
+  }
+
   componentDidMount() {
-    document.title = "Ratings - Package Delivery Marketplace"
+    document.title = "Ratings - Package Delivery Marketplace";
+    setTimeout(function() {
+      this.setState({
+        loading: false
+      })
+    }.bind(this), 4000)
   }
 
   render() {
     return (
       <div className="App">
         <Header />
-        <Navigation currentPage="profile" />
+        <Navigation currentPage="ratings" />
         <div className="main-content">
           <AuthUserContext.Consumer>
             {authUser =>
               authUser ? (
                 <div className="tile">
                   <h2>Ratings</h2>
-                  <h4>This page shows all driver with their current rating.</h4>
-                  {this.state.drivers.map((driver, index) => {
+                  <h4>This page shows all drivers with their current rating.</h4>
+                  {this.state.userRatings.length > 0 
+                  ? this.state.userRatings.map((driver, index) => {
                     return (
                       <div key={index} className="ratings-div">
-                        {driver.rating}, {driver.name}
+                        <span id="ratings-number"> {driver[2]} </span>
+                        <span>{driver[1]}</span>
                       </div>
                     );
-                  })}
+                  })
+                :
+                <div>
+                  {this.state.loading 
+                  ? (
+                  <div className="spinner">
+                      <div className="bounce1"></div>
+                      <div className="bounce2"></div>
+                      <div className="bounce3"></div>
+                  </div>) 
+                  : (
+                    <div>
+                      Package information are currently unavailable. Please check later again.
+                    </div>
+                  )}
+                </div>
+                }
                 </div>
               ) : (
                 <div className="tile">

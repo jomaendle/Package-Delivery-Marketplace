@@ -38,7 +38,7 @@ export class Package extends Component {
             loading: false
           });
         }.bind(this),
-        3500
+        7500
       );
     }
   }
