@@ -27,7 +27,7 @@ firebase_admin.initialize_app(cred, {
 db = firestore.Client()
 
 # Google Maps Setup
-gmaps = googlemaps.Client(key='AIzaSyB5H2Jkopw-27Jber1tBVQvj6pOolYhk4U')
+gmaps = googlemaps.Client(key='')
 
 
 globalErrorMessage = "Request not supported, check documentation"
@@ -71,25 +71,9 @@ def verify_request(request):
     else:
         return False, 400, 'Not supported. Make sure to POST with application/JSON header', headers
 
-# Distance callback TEST FUNC
-def create_distance_callback(dist_matrix):
-  # Create a callback to calculate distances between cities.
-
-  def distance_callback(from_node, to_node):
-    return int(dist_matrix[from_node][to_node])
-
-  return distance_callback
 
 def parcel(request):
-    """HTTP Cloud Function.
-    Args:
-        request (flask.Request): The request object.
-        <http://flask.pocoo.org/docs/1.0/api/#f3lask.Request>
-    Returns:
-        The response text, or any set of values that can be turned into a
-        Response object using `make_response`
-        <http://flask.pocoo.org/docs/1.0/api/#flask.Flask.make_response>.
-    """
+
     verification, http_code, message, headers = verify_request(request)
     if verification == False:
         return (message, http_code, headers)
@@ -507,60 +491,3 @@ def parcelPriceCalculator(size, weight, est_driving_distance, priority):
     # Our margin
     return round(net_price * 1.05, 2)
 
-
-# Traveling Salesman Implementation
-
-def create_distance_matrix(locations):
-    #locations [[name, loc],[]...] = ["JxmmtV40RYWvzR2vJT5M",[48.629546117894684,9.211901583414942]],["RN7JWWICYXDfEG8CrjV7",[48.619375519942274,8.879459071710244]]
-    cords = [loc[1] for loc in locations]
- 
-    # https://developers.google.com/maps/documentation/distance-matrix/intro
-    gmaps_dmatrix = gmaps.distance_matrix(cords, cords, mode='driving')
-
-
-    dmatrix = [ [cell['distance']['value'] for cell in row['elements']] for row in gmaps_dmatrix['rows']]
-
-    return gmaps_dmatrix
-
-# Distance callback
-def create_distance_callback(dist_matrix):
-  # Create a callback to calculate distances between cities.
-
-  def distance_callback(from_node, to_node):
-    return int(dist_matrix[from_node][to_node])
-
-  return distance_callback
-
-
-def nextCity(locations, dist_matrix):
-    tsp_size = len(locations)
-    num_routes = 1
-    depot = 0
-    
-    if tsp_size > 0:
-        routing = pywrapcp.RoutingModel(tsp_size, num_routes, depot)
-    
-        search_parameters = pywrapcp.RoutingModel.DefaultSearchParameters()
-        # Create the distance callback.
-        #dist_callback = create_distance_callback(dist_matrix)
-    
-        routing.SetArcCostEvaluatorOfAllVehicles(lambda from_node, to_node: int(dist_matrix[from_node][to_node]))
-        # Solve the problem.
-        try:
-            assignment = routing.SolveWithParameters(search_parameters)
-        except Exception as e:
-            print(e)
-    '''
-        if assignment:
-            # Solution distance.
-            # print "Total distance: " + str(assignment.ObjectiveValue()) + " miles\n"
-            # Display the solution.
-            # Only one route here; otherwise iterate from 0 to routing.vehicles() - 1
-            route_number = 0
-    
-            index = routing.Start(route_number) # Index of the variable for the starting node.
-    
-            index = assignment.Value(routing.NextVar(index))
-    
-            return locations[routing.IndexToNode(index)]
-    '''
