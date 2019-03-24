@@ -1,22 +1,8 @@
-# Copyright 2018 Google LLC
-#
-# Licensed under the Apache License, Version 2.0 (the 'License');
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an 'AS IS' BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import sys
 import json
 from datetime import datetime
-# [START functions_helloworld_http]
-# [START functions_http_content]
+
+
 from flask import escape, request, jsonify
 
 
@@ -167,7 +153,7 @@ def parcel(request):
             )
         
         except Exception as e:
-            return 'error in post req - submit/check: ' + str(e)
+            return ('error in post req - submit/check: ' + str(e), 400, headers)
         else:
             return (answ, 200, headers)
 
@@ -178,7 +164,7 @@ def parcel(request):
             if parcel_id == '' or req_action == 'list':
                 search_result = db.collection(u'parcels').where(u'customer_id', u'==', uid).get()
 
-                plist = [(doc.id, doc.to_dict()['parcel_status'], doc.to_dict()['time_created']) for doc in search_result]
+                plist = [(doc.id, doc.to_dict()['parcel_status'], doc.to_dict()['time_created'], doc.to_dict()['comment']) for doc in search_result]
 
 
                 answ = jsonify(
@@ -193,7 +179,7 @@ def parcel(request):
                     detail = search_result.to_dict()
                 )
         except Exception as e:
-            return 'error in post - list/detail: ' + str(e)
+            return ('error in post - list/detail: ' + str(e), 400, headers)
         else:
             return (answ, 200, headers)
 
@@ -211,7 +197,7 @@ def pd_suggestions(request):
     radius = int(content['radius'])*1000
 
     # Fetch available parcels from DB
-    parcels_by_priority = db.collection(u'parcels').where(u'parcel_status', u'==', u'home').order_by(u'priority').limit(10).get()
+    parcels_by_priority = db.collection(u'parcels').where(u'parcel_status', u'==', u'home').order_by(u'priority').limit(7).get()
     
 
     # Calculate driving distance to starting point
@@ -384,10 +370,20 @@ def pd_status(request):
     
     # (pid, [loc])
     actual_best = accessible_locations[best_parcel_index[0]]
+    parcel_id = actual_best[0]
+    location = actual_best[1]
 
+    # Get Parcel Details
+    search_result = db.collection(u'parcels').document(parcel_id).get()
+    parcel_details =  search_result.to_dict()
+    
     answ = jsonify(
-        parcel_id = actual_best[0],
-        location = actual_best[1]
+        parcel_id = parcel_id,
+        location = location,
+        parcel_state = "Pickup" if parcel_details['parcel_status'] == 'ready' else "Deliver",
+        parcel_comment = parcel_details['comment'],
+        parcel_weight = parcel_details['weight'],
+        parcel_size = parcel_details['size'] 
     )
 
     return (answ, 200, headers)
@@ -434,6 +430,33 @@ def pd_job_history(request):
     )
     return (answ, 200, headers)
 
+def pd_rating(request):
+    # Get user_token, return ratings of all drivers
+
+    # Check authentification and set CORS preflight, as well as regular headers
+    verification, http_code, message, headers = verify_request(request)
+    if verification == False:
+        return (message, http_code, headers)
+    elif verification == True:
+        uid = message[0]
+
+    all_jobs = db.collection(u'jobs').where(u'job_status', u'==', 'finished').order_by(u'driver_id').get()
+
+    # Create Tuple (id, amount) for each job
+    driver_parcels = [ [job.to_dict()['driver_id'], len(job.to_dict()['selected_parcels'])] for job in all_jobs]
+    
+    previous_id = ""
+    driver_sum = []
+    for driver_id, parcel_count in driver_parcels:
+        if driver_id == previous_id:
+            # Get last item (parcel count) and append the new one
+            driver_sum[-1][-1] += parcel_count
+        else:
+            name = auth.get_user(driver_id).display_name
+            driver_sum.append([driver_id, name, parcel_count])
+        previous_id = driver_id
+
+    return (jsonify(driver_sum), 200, headers)
 
 def pd_parcel_status(request):
 
