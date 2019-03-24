@@ -1,283 +1,343 @@
-import React, { Component } from 'react';
-import axios from 'axios';
-import Navigation from '../components/Navigation';
+import React, { Component } from "react";
+import {sendPostRequest} from "../API/Requests"
+import Navigation from "../components/Navigation";
 import Header from "../components/Header";
-import '../App.css';
-import { withAuthentication } from "../Session";
-import { withScriptjs, withGoogleMap, GoogleMap, Marker } from "react-google-maps"
-require('dotenv').config();
-
-const GoogleMapComponent = withScriptjs(withGoogleMap((props) =>
-<GoogleMap
-    defaultZoom={11}
-    defaultCenter={props.currentLatLng}
-    onClick={props.handleMapClick}
->
-    {props.isMarkerShown && <Marker position={props.currentLatLng} />}
-</GoogleMap>
-))
+import Map from "../components/Maps";
+import "../App.css";
+import firebase from "firebase";
+import { withAuthentication, AuthUserContext } from "../Session";
+require("dotenv").config();
 
 export class Package extends Component {
+  constructor() {
+    super();
+    this.state = {
+      startLocation: null,
+      destination: null,
+      showSecondMarker: false,
+      mapPositionArray: [],
+      priority: "",
+      price: "",
+      userToken: null
+    };
 
-    constructor() {
-        super();
-        this.state = {
-            startLocation: {
-                lon: null,
-                lat: null
-            },
-            destination: {
-                lon: null,
-                lat: null
-            }, 
-            googleAPIKey: process.env.REACT_APP_GOOLE_API_KEY,
-            currentLatLng: {
-                lat: 0,
-                lng: 0
-            },
-            priority: "",
-            price: ""
-        }
-        this.handleMapClick = this.handleMapClick.bind(this);
-        this.clearValues = this.clearValues.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.continueToFinalPage = this.continueToFinalPage.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.continueToFinalPage = this.continueToFinalPage.bind(this);
+    this.getUserToken = this.getUserToken.bind(this);
 
-        //Create refs
-        this.rangeRef = React.createRef();
-        this.sizeRef = React.createRef();
-        this.weightRef = React.createRef();
-        this.commentRef = React.createRef();
-        this.priceRef = React.createRef();
+    //Create refs
+    this.rangeRef = React.createRef();
+    this.sizeRef = React.createRef();
+    this.weightRef = React.createRef();
+    this.commentRef = React.createRef();
+    this.priceRef = React.createRef();
+  }
+
+  componentWillMount() {
+     this.getUserToken();
+  }
+
+  componentDidMount() {
+    document.title = "Insert a new Package - Package Delivery Marketplace"
+    this.setState({
+      priority: "Priority: Very High",
+      price: "Price: 50€"
+    });
+  }
+
+  handleSubmit = async (e) => {
+    e.preventDefault();
+    if (this.state.startLocation && this.state.destination) {
+      const size = this.sizeRef.current.value;
+      const weight = this.weightRef.current.value;
+      const priority = this.rangeRef.current.value;
+      const comment = this.commentRef.current.value;
+      const price = this.priceRef.current.value;
+      const token = this.state.userToken;
+      let res;
+      console.log(token);
+
+      //Get start location
+      let startLocation = this.state.startLocation;
+
+      //Get destination of package
+      let destination = this.state.destination;
+
+      //Wrap data into object
+      let data = JSON.stringify({
+        action: "submit",
+        user_token: token,
+        price: price,
+        size: size,
+        weight: weight,
+        priority: priority,
+        comment: comment,
+        pickup_location: startLocation,
+        destination_location: destination
+      })
+
+      console.log(data);
+      let response = await sendPostRequest("parcel", data)
+      if(response){
+        this.continueToFinalPage(data, res, true);
+        console.log(response)
+      }else {
+        this.continueToFinalPage(data, res, false);
+      }
+    } else {
+      alert("Please select the start and final destination of the package. ");
     }
+  };
 
-    componentWillMount() {
-        this.getGeoLocation();
-        
-    }
-
-    componentDidMount() {
-        this.setState({
-            priority: "Priority: " + this.rangeRef.current.value,
-            price: "Price: " + this.priceRef.current.value + "€"
-        })
-    }
-
-    handleMapClick(e) {
-        if(e.latLng != null){
-            let lat = e.latLng.lat();
-            let lon = e.latLng.lng();
-            
-            if(this.state.startLocation.lon == null && this.state.startLocation.lat == null){
-                this.setState({
-                    startLocation: {
-                        lat: lat,
-                        lon: lon
-                    }
-                })
-            } else if(this.state.startLocation != null && (this.state.destination.lon == null && this.state.destination.lat == null)){
-                this.setState({
-                    destination: {
-                        lat: lat,
-                        lon: lon
-                    }
-                }) 
-            }else {
-                alert("Values are already set. Please clear to set them again.")
-            }
-        }
-    }
-
-    getGeoLocation = () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                position => {
-                    this.setState(prevState => ({
-                        currentLatLng: {
-                            ...prevState.currentLatLng,
-                            lat: position.coords.latitude,
-                            lng: position.coords.longitude
-                        }
-                    }))
-                }
+  getUserToken =  () => {
+    if (firebase.auth().currentUser) {
+      console.log("da")
+        firebase
+            .auth()
+            .currentUser.getIdToken(/* forceRefresh */ true)
+            .then(
+                function(idToken) {
+                    this.state.userToken=idToken
+                    console.log(idToken);
+                }.bind(this)
             )
-        } else {
-           console.log("Failed fetching current GPS coordinates.");
-        }
+            .catch(function(error) {
+              console.log("Error fetching user token");
+        });
     }
+}
 
-    clearValues() {
-        this.setState({
-            startLocation: {
-                lon: null,
-                lat: null
-            },
-            destination: {
-                lon: null,
-                lat: null
-            }
-        })
+  redirectToCompletePage() {
+    this.props.history.push({
+      pathname: "/driver",
+      state: {
+        currentLatLng: this.state.currentLatLng
+      }
+    });
+  }
+
+  setPackageStart=(data)=> {
+    console.log(data)
+    this.setState({
+      startLocation: data
+    })
+  }
+
+  setPackageDestination=(data)=>{
+    console.log(data);
+    this.setState({
+      destination: data
+    })
+  }
+
+  updatePriorityLabel(e) {
+    e.preventDefault();
+    let value = "";
+    switch (this.rangeRef.current.value) {
+      case "1":
+        value = "Very low";
+        break;
+      case "2":
+        value = "Low";
+        break;
+      case "3":
+        value = "Normal";
+        break;
+      case "4":
+        value = "High";
+        break;
+      case "5":
+        value = "Very High";
+        break;
+      default:
+        value = "";
+        break;
     }
+    this.setState({
+      priority: "Priority: " + value
+    });
+  }
 
-    handleSubmit = (e) => {
-        e.preventDefault();
-        if(this.state.destination.lon || this.state.startLocation.lon){
-            
-            const size = this.sizeRef.current.value;
-            const weight = this.weightRef.current.value;
-            const priority = this.rangeRef.current.value;
-            const comment = this.commentRef.current.value;
-            const price = this.priceRef.current.value;
-    
-    
-            axios.post('http://localhost:8080/', {
-                size,
-                weight,
-                priority,
-                comment,
-                price,
-                startLocation: this.state.startLocation,
-                destination: this.state.destination
-            })
-            .then(response => { 
-                console.log(response)
-            })
-            .catch(error => {
-                console.log(error.response)
-            });
+  updatePriceLabel(e) {
+    e.preventDefault();
+    this.setState({
+      price: "Price: " + this.priceRef.current.value + "€"
+    });
+  }
 
-            let currentPackage = {
-                size,
-                weight,
-                priority,
-                comment,
-                price
-            }
+  continueToFinalPage(currentPackage, res, boolean) {
+    this.props.history.push({
+      pathname: "/final",
+      state: {
+        userType: "customer",
+        package: currentPackage,
+        response: res,
+        success: boolean
+      }
+    });
+  }
 
-            this.continueToFinalPage(currentPackage);
-        }else{
-            alert("Please select the start and final destination of the package. ")
-        }
-    }
-
-    redirectToCompletePage(){
-        this.props.history.push({
-            pathname: '/driver',
-            state: { 
-                currentLatLng: this.state.currentLatLng
-            }
-        })
-    }
-
-    updatePriorityLabel(e) {
-        e.preventDefault();
-        this.setState({
-            priority: "Priority: " + this.rangeRef.current.value 
-        })
-    }
-
-    updatePriceLabel(e) {
-        e.preventDefault();
-        this.setState({
-            price: "Price: " + this.priceRef.current.value + "€"
-        })
-    }
-
-    continueToFinalPage(obj) {
-        this.props.history.push({
-            pathname: '/final',
-            state: { 
-                userType: "customer",
-                package: obj
-            }
-        })
-    }
-
-    render() {
-
-        let googleMapURL = "https://maps.googleapis.com/maps/api/js?libraries=places&key=" + this.state.googleAPIKey;
-
-        return (
-            <div className="App">
-                <Header />
-                <Navigation currentPage="package"/>
-                <div className="main-content">
-                    <h2>
-                        Insert a new package to the marketplace
-                    </h2>
-                    <div>
+  render() {
+    return (
+          <div className="App">
+            <Header />
+            <Navigation currentPage="package" />
+            <div className="main-content">
+              <AuthUserContext.Consumer>
+                {authUser =>
+                  authUser ? (
+                    <div id="driver-site-div" className="tile">
+                      <h2>Insert a new package to the marketplace</h2>
+                      <div>
+                        <Map 
+                        setPackageStart={this.setPackageStart}
+                        setPackageDestination={this.setPackageDestination}
+                        numberOfClicksAllowed ="0"
+                        showDestinationBar="true"/>
                         <form onSubmit={this.handleSubmit}>
-                            <p  className="p-border">
-                                <span style={{fontWeight: 600}}>What's the size of your package?</span>
-                                <select name="size" ref={this.sizeRef} className="package-insert-select">
-                                    <option value="small">Small</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="large">Large</option>
-                                </select>
+                          <p className="p-border">
+                            <span style={{ fontWeight: 600 }}>
+                              What's the size of your package?
+                            </span>
+                            <select
+                              name="size"
+                              ref={this.sizeRef}
+                              className="package-insert-select"
+                            >
+                              <option value="S">S (35 x 25 x 10 cm)</option>
+                              <option value="M">M (60 x 30 x 15 cm)</option>
+                              <option value="L">L (120 x 60 x 60 cm)</option>
+                            </select>
+                          </p>
+                          <p className="p-border">
+                            <span style={{ fontWeight: 600 }}>
+                              How heavy is it?
+                            </span>
+                            <select
+                              name="weight"
+                              ref={this.weightRef}
+                              className="package-insert-select"
+                            >
+                              <option value="light">Up to 2 Kg</option>
+                              <option value="medium">Up to 5 Kg</option>
+                              <option value="heavy">Up to 10 Kg</option>
+                            </select>
+                          </p>
+                          <div style={{ marginTop: "10px" }}>
+                            <p className="p-border">
+                              <span style={{ fontWeight: 600 }}>
+                                What priority should it have?
+                              </span>{" "}
+                              <br />
+                              <span
+                                style={{
+                                  marginRight: "20px",
+                                  display: "inline-block",
+                                  width: "135px"
+                                }}
+                              >
+                                {this.state.priority}
+                              </span>
+                              <input
+                                type="range"
+                                ref={this.rangeRef}
+                                name="priority"
+                                min="1"
+                                max="5"
+                                style={{ width: "250px" }}
+                                onChange={e => {
+                                  this.updatePriorityLabel(e);
+                                }}
+                              />
                             </p>
                             <p className="p-border">
-                                <span style={{fontWeight: 600}}>
-                                    How heavy is it?
-                                </span>
-                                <select name="weight" ref={this.weightRef} className="package-insert-select">
-                                    <option value="light">Light</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="heavy">Heavy</option>
-                                </select>
+                              <span style={{ fontWeight: 600 }}>
+                                Whats your maximum price?
+                              </span>{" "}
+                              <br />
+                              <span
+                                style={{
+                                  marginRight: "20px",
+                                  display: "inline-block",
+                                  width: "135px"
+                                }}
+                              >
+                                {this.state.price}
+                              </span>
+                              <input
+                                type="range"
+                                ref={this.priceRef}
+                                name="price"
+                                min="1"
+                                max="100"
+                                style={{ width: "250px" }}
+                                onChange={e => {
+                                  this.updatePriceLabel(e);
+                                }}
+                              />
                             </p>
-                            <div style={{marginTop: "10px"}}>
-                                <p className="p-border">
-                               <span  style={{fontWeight: 600}}>
-                               What priority should it have?
-                                </span>  <br/><br/>
-                                    <span style={{marginRight: "20px"}}>
-                                        {this.state.priority}
-                                    </span>
-                                    <input type="range" ref={this.rangeRef} name="priority"
-                                            min="1" max="5" style={{ width: "250px"}}
-                                            onChange={(e) => {this.updatePriorityLabel(e)}}
-                                    />
-                                    
-                            </p>
-                            <p className="p-border">
-                                <span style={{fontWeight: 600}}>
-                                    Whats your maximum price?
-                                </span> <br/><br/>
-                                <span style={{marginRight: "15px"}}>
-                                        {this.state.price}
-                                    </span>
-                                    <input type="range" ref={this.priceRef} name="price"
-                                            min="1" max="100" style={{ width: "250px"}}
-                                            onChange={(e) => {this.updatePriceLabel(e)}}
-                                    />
-                            </p>
-                        </div>
-                            <p className="p-border">
-                                <span style={{fontWeight: 600}}>Any Comments?</span>
-                                <textarea id="package-comment" name="comment" 
-                                className="package-insert-select"
-                                ref={this.commentRef}
-                                ></textarea>
-                            </p>
-                            <GoogleMapComponent
-                                isMarkerShown
-                                handleMapClick={this.handleMapClick}
-                                googleMapURL= {googleMapURL}
-                                currentLatLng = {this.state.currentLatLng}
-                                loadingElement={<div style={{ height: `100%` }} />}
-                                containerElement={<div style={{ height: `400px` }} />}
-                                mapElement={<div style={{ height: `100%`, borderRadius: "8px", boxShadow: "0 2px 10px #8e8e8ecc" }} />}
+                          </div>
+                          <p className="p-border">
+                            <span style={{ fontWeight: 600 }}>Any Comments?</span>
+                            <textarea
+                              id="package-comment"
+                              name="comment"
+                              className="package-insert-select"
+                              ref={this.commentRef}
                             />
-                            <div style={{marginTop: "20px"}}>
-                                <button className="buttons critical-button" onMouseDown={this.clearValues}>Clear Values</button>
-                                <input className="buttons cta-button" type="submit" style={{float: "right"}} value="Submit"/>
-                            </div>
+                          </p>
+                          <div id="selected-locations">
+                            {/*<div className="speech-bubble" />
+                            <div style={{ lineHeight: "19px" }}>
+                              <span style={{ fontWeight: 600 }}>
+                                Start Location
+                              </span>{" "}
+                              <br />
+                              {this.state.startLocation.lat
+                                ? this.state.startLocation.lat.toFixed(3)
+                                : "0"}
+                              ,{" "}
+                              {this.state.startLocation.lng
+                                ? this.state.startLocation.lng.toFixed(3)
+                                : "0"}
+                              </div>
+                            <br />
+                            <div style={{ lineHeight: "19px" }}>
+                              <span style={{ fontWeight: 600 }}> Destination </span>{" "}
+                              <br />
+                              {this.state.destination.lat
+                                ? this.state.destination.lat.toFixed(3)
+                                : "0"}
+                              ,{" "}
+                              {this.state.destination.lng
+                                ? this.state.destination.lng.toFixed(3)
+                                : "0"}
+                              </div>*/}
+                          </div>
+                          <div style={{ marginTop: "20px" }}>
+                            <input
+                              className="buttons cta-button"
+                              type="submit"
+                              style={{ float: "right" }}
+                              value="Submit"
+                            />
+                          </div>
                         </form>
+                      </div>
                     </div>
-                </div>
+                  ) : (
+                    <div className="tile">
+                      <div className="userNotLoggedIn-label">
+                        Please log in to access this page.
+                      </div>
+                    </div>
+                  )
+                }
+              </AuthUserContext.Consumer>
             </div>
-        );
-    }
+          </div>
+    );
+  }
 }
 
 export default withAuthentication(Package);

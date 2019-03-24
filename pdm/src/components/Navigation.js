@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { AuthUserContext } from "../Session";
 
  class Navigation extends React.Component{
+   _iconSize = "18px";
 
   constructor() {
     super();
@@ -18,7 +19,6 @@ import { AuthUserContext } from "../Session";
     this.setState({
       currentPage: this.props.currentPage
     })
-    console.log(this.props)
   }
   render() {
 
@@ -27,34 +27,61 @@ import { AuthUserContext } from "../Session";
         <ul  id="navigation-bar">
           <li>
             {this.state.currentPage==="home" 
-            ?  <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/"}> Home </Link>
-            :  <Link className="navigation-links" to={"/"}> Home </Link>}
+            ?  <Link className="navigation-links" to={"/"}> 
+              Home 
+              <img className="menu-icons" style={{width: this._iconSize}} alt="Shows an icon of a home" src="/assets/home.png"/>
+              </Link>
+            :  <Link to={"/"}> 
+                Home 
+                <img className="menu-icons" style={{width: this._iconSize}} alt="Shows an icon of a home" src="/assets/home.png"/>
+              </Link>}
           </li>
           <li>
           {this.state.currentPage==="profile" 
-            ?  <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/profile"}> Profile </Link>
-            :  <Link className="navigation-links" to={"/profile"}> Profile </Link>}
+            ?  <Link className="navigation-links" to={"/profile"}> 
+                Profile 
+                <img className="menu-icons" style={{width: this._iconSize}} alt="Shows an icon of a person" src="/assets/avatar_2.png"/>
+                </Link>
+            :  <Link  to={"/profile"}> 
+                Profile 
+                <img className="menu-icons" style={{width: this._iconSize}} alt="Shows an icon of a person" src="/assets/avatar_2.png"/>
+                </Link>}
           </li>
-         
+         <li>
           {this.state.currentPage==="package" 
-            ?   
-            <li>
-                <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/new-package"}> Insert Package </Link>
-            </li>
-            :  
-            <li>
-                <Link className="navigation-links" to={"/new-package"}> Insert Package </Link>
-            </li>}
-          
-          {this.state.currentPage==="delivery" 
-            ? 
-            <li >
-               <Link className="navigation-links" style={{borderBottom: "solid", paddingBottom: "3px"}} to={"/driver"}>Delivery </Link>
-            </li>
-            :
-            <li >
-                <Link className="navigation-links" to={"/driver"}> Delivery </Link>
-            </li>}
+          ? <Link className="navigation-links" to={"/packages"}> 
+              My Packages 
+              <img className="menu-icons" style={{width: this._iconSize, top:"4px"}} alt="Shows an icon of a package" src="/assets/box.png"/>
+              </Link>
+          :  <Link to={"/packages"}> 
+              My Packages 
+              <img className="menu-icons" style={{width: this._iconSize, top:"4px"}} alt="Shows an icon of a package" src="/assets/box.png"/>
+              </Link>}
+          </li>
+      	  <li>
+            {this.state.currentPage==="delivery" 
+              ? <Link className="navigation-links" to={"/drives"}>
+                My Deliveries 
+                <img className="menu-icons" style={{width: this._iconSize, top:"4px"}} alt="Shows an icon of a truck" src="/assets/truck.png"/>
+                </Link>
+              : <Link  to={"/drives"}> 
+                My Deliveries 
+                <img className="menu-icons" style={{width: this._iconSize, top:"4px"}} alt="Shows an icon of a truck" src="/assets/truck.png"/>
+                </Link>
+            }
+          </li>
+          <li>
+            {this.state.currentPage==="ratings" 
+              ? <Link className="navigation-links" to={"/ratings"}>
+                Ratings
+                <img className="menu-icons" style={{width: this._iconSize, top:"3px"}} alt="Shows an icon of a rating star" src="/assets/star.png"/>
+                </Link>
+              : <Link  to={"/ratings"}> 
+                Ratings 
+                <img className="menu-icons" style={{width: this._iconSize, top:"3px"}} alt="Shows an icon of a rating star" src="/assets/star.png"/>
+                </Link>
+            }
+          </li>
           <li>
             <SignOutButton />
           </li>
@@ -66,10 +93,26 @@ import { AuthUserContext } from "../Session";
       <div>
         <ul id="navigation-bar">
           <li>
-            <Link className="navigation-links" to={"/"}> Home </Link>
+          {this.state.currentPage==="home" 
+            ?  <Link className="navigation-links" to={"/"}> 
+               Home 
+              <img className="menu-icons" style={{width: this._iconSize}} alt="Shows an icon of a home" src="/assets/home.png"/>
+             </Link>
+            :  <Link to={"/"}> 
+               Home 
+              <img className="menu-icons" style={{width: this._iconSize}} alt="Shows an icon of a home" src="/assets/home.png"/>
+            </Link>}
           </li>
           <li>
-            <Link className="navigation-links" to={"/login"}> Sign In </Link>
+          {this.state.currentPage==="login" 
+            ?  <Link className="navigation-links" to={"/login"}> 
+              Sign In 
+              <img className="menu-icons" style={{width: this._iconSize}} alt="Shows an icon of a home" src="/assets/sign-in.png"/>
+              </Link>
+            :  <Link to={"/login"}> 
+                Sign In 
+                <img className="menu-icons" style={{width: this._iconSize}} alt="Shows an icon of a home" src="/assets/sign-in.png"/>
+                </Link>}
           </li>
         </ul>
     
@@ -86,9 +129,5 @@ import { AuthUserContext } from "../Session";
     )
   }
 }
-
-let currentPage;
-
-
 
 export default Navigation;
